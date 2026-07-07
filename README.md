@@ -8,6 +8,7 @@ YouTubeチャンネルの運用および動画制作を行うチームの運営�
 - [チーム構成・役割分担](docs/team-roles.md)
 - [動画制作ワークフロー](docs/workflow.md)
 - [チェックリスト](docs/checklists.md)
+- [必要なアプリ・資機材リスト](docs/equipment-and-tools.md)
 - テンプレート
   - [企画書テンプレート](docs/templates/video-planning-template.md)
   - [台本テンプレート](docs/templates/script-template.md)
