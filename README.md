@@ -10,6 +10,7 @@ YouTubeチャンネルの運用および動画制作を行うチームの運営�
 - [チェックリスト](docs/checklists.md)
 - [必要なアプリ・資機材リスト](docs/equipment-and-tools.md)
 - [市場分析:企画別](docs/market-analysis.md)
+- [初期構成・投稿プラン](docs/posting-plan.md)
 - テンプレート
   - [企画書テンプレート](docs/templates/video-planning-template.md)
   - [台本テンプレート](docs/templates/script-template.md)
