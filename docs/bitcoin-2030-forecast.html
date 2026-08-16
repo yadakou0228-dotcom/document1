@@ -1,0 +1,427 @@
+<title>ビットコイン2030年シナリオ</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb;
+    --plane: #f9f9f7;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.10);
+    --s-base: #2a78d6;
+    --s-bull: #eb6834;
+    --s-bear: #1baf7a;
+    --hist: #52514e;
+    --band: rgba(42, 120, 214, 0.06);
+    --fc-wash: rgba(11, 11, 11, 0.022);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1: #1a1a19;
+      --plane: #0d0d0d;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --s-base: #3987e5;
+      --s-bull: #d95926;
+      --s-bear: #199e70;
+      --hist: #c3c2b7;
+      --band: rgba(57, 135, 229, 0.09);
+      --fc-wash: rgba(255, 255, 255, 0.028);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --plane: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --s-base: #3987e5;
+    --s-bull: #d95926;
+    --s-bear: #199e70;
+    --hist: #c3c2b7;
+    --band: rgba(57, 135, 229, 0.09);
+    --fc-wash: rgba(255, 255, 255, 0.028);
+  }
+
+  body {
+    background: var(--plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 40px 24px 72px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+
+  header { margin-bottom: 32px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 600; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 10px;
+  }
+  h1 { font-size: clamp(26px, 3.4vw, 38px); line-height: 1.25; margin: 0 0 12px; letter-spacing: -.02em; font-weight: 650; text-wrap: balance; }
+  .lede { font-size: 16px; color: var(--text-secondary); margin: 0; max-width: 68ch; }
+
+  h2 {
+    font-size: 13px; font-weight: 650; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--muted); margin: 48px 0 16px;
+  }
+  h3 { font-size: 16px; font-weight: 650; margin: 0 0 8px; letter-spacing: -.01em; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(178px, 1fr)); gap: 12px; margin-top: 26px; }
+  .kpi {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+  }
+  .kpi .lbl { font-size: 12px; color: var(--muted); margin: 0 0 6px; }
+  .kpi .val { font-size: 27px; font-weight: 650; letter-spacing: -.02em; line-height: 1.15; }
+  .kpi .val.rng { font-size: 22px; white-space: nowrap; }
+  .kpi .sub { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
+
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 20px 12px;
+  }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 6px; padding: 0 4px; }
+  .lg { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+  .lg i { width: 15px; height: 3px; border-radius: 2px; flex: none; }
+  .lg.hist i { background: var(--hist); }
+
+  .chartbox { position: relative; width: 100%; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .tick { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .endlbl { font-size: 12px; font-weight: 650; fill: var(--text-primary); }
+  .endsub { font-size: 10.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .evt { font-size: 10.5px; fill: var(--muted); font-weight: 600; }
+
+  .tip {
+    position: absolute; pointer-events: none; opacity: 0; transition: opacity .1s;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; font-size: 12.5px; min-width: 172px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.13); z-index: 5;
+  }
+  .tip .t-m { font-weight: 650; margin-bottom: 7px; font-size: 12px; color: var(--text-primary); }
+  .tip .t-r { display: flex; align-items: center; gap: 8px; margin-top: 4px; color: var(--text-secondary); }
+  .tip .t-r i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .tip .t-r b { margin-left: auto; font-weight: 650; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); gap: 14px; }
+  .sc { background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px 20px; }
+  .sc .top { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+  .sc .top i { width: 15px; height: 3px; border-radius: 2px; flex: none; }
+  .sc .top .p { margin-left: auto; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .sc .num { font-size: 25px; font-weight: 650; letter-spacing: -.02em; }
+  .sc .numsub { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .sc ul { margin: 0; padding-left: 17px; font-size: 13.5px; color: var(--text-secondary); }
+  .sc li { margin-bottom: 6px; }
+  .sc li::marker { color: var(--muted); }
+
+  .tblwrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 520px; }
+  th, td { padding: 9px 14px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 11.5px; color: var(--muted); font-weight: 600; letter-spacing: .03em; }
+  tbody td { font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+  tbody td:first-child { color: var(--text-primary); font-weight: 600; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.mk td { background: var(--band); }
+  tbody tr.mk td:first-child::after { content: " ◆"; color: var(--muted); font-size: 10px; }
+
+  .note { font-size: 13px; color: var(--text-secondary); max-width: 74ch; }
+  .note p { margin: 0 0 12px; }
+  .foot {
+    margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--muted); max-width: 78ch;
+  }
+  .foot a { color: inherit; }
+  @media (max-width: 560px) { body { padding: 28px 14px 56px; } .card { padding: 14px 10px 8px; } }
+  @media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">機関投資家向けシナリオ分析 · 2026年8月16日時点</p>
+    <h1>ビットコイン 2030年までの価格推移予測</h1>
+    <p class="lede">
+      2025年10月の史上最高値 $126,198 からの調整局面を起点に、2028年4月の半減期と
+      その前に訪れるサイクル底値を軸として、2030年末までの月次パスを3シナリオで推計しました。
+    </p>
+    <div class="kpis" id="kpis"></div>
+  </header>
+
+  <h2>価格推移（2024年1月 → 2030年12月・対数目盛）</h2>
+  <div class="card">
+    <div class="legend">
+      <span class="lg hist"><i></i>実績</span>
+      <span class="lg"><i style="background:var(--s-bull)"></i>強気シナリオ</span>
+      <span class="lg"><i style="background:var(--s-base)"></i>最有力シナリオ</span>
+      <span class="lg"><i style="background:var(--s-bear)"></i>弱気シナリオ</span>
+    </div>
+    <div class="chartbox" id="cb">
+      <svg id="svg" role="img" aria-label="ビットコイン価格の実績と2030年までの3シナリオ予測"></svg>
+      <div class="tip" id="tip"></div>
+    </div>
+  </div>
+
+  <h2>シナリオ別の前提</h2>
+  <div class="cards" id="cards"></div>
+
+  <h2>サイクル構造の読み方</h2>
+  <div class="note">
+    <p>
+      <strong>1. 底値は半減期の約18か月前に来る。</strong>
+      過去4サイクルとも、価格の大底は半減期のおよそ1年半前に形成されてきました。
+      2028年4月の半減期から逆算すると <strong>2026年10月〜2027年1月</strong> が本命の底値ゾーンです。
+      2026年6月に付けた $58,000 は既に21か月ぶりの安値ですが、最有力シナリオでは
+      もう一段の投げ売りを経て $51,000 前後で底入れすると見ています。
+    </p>
+    <p>
+      <strong>2. 天井は半減期の12〜18か月後、そして年々遅くなっている。</strong>
+      半減期からピークまでの日数は 13か月（2013年）→ 17か月（2017年）→ 18か月（2021年）→ 18か月（2025年）と
+      伸び続けています。ETFと機関マネーがサイクルを平準化していることを踏まえ、
+      2028年4月の半減期から <strong>20〜24か月後、すなわち2030年前半</strong> をピーク時期と置きました。
+      つまり2030年は「上昇の到達点」であると同時に、年後半には天井を打った後の下落局面に入る可能性が高い年です。
+    </p>
+    <p>
+      <strong>3. 倍率は逓減する。</strong>
+      ピーク間の上昇倍率は 17倍 → 3.5倍 → 1.8倍 と縮小しています。時価総額の拡大と
+      新規供給の相対的減少（半減期による発行減は $126,198 の時価総額に対して既に軽微）を踏まえ、
+      最有力シナリオでは前回ピーク比 <strong>約2.0倍</strong> の $248,000 をサイクル天井としました。
+      強気シナリオでも4.3倍にとどめており、ARK Invest の2030年ベースケース $710,000 より
+      意図的に保守的な水準です。
+    </p>
+    <p>
+      <strong>4. 半減期の効き目は今後さらに薄れる。</strong>
+      2028年の半減でブロック報酬は 3.125 BTC → 1.5625 BTC となり、年間新規供給は
+      発行済総量の約0.4%まで低下します。供給ショックとしての意味は小さくなり、
+      弱気シナリオはまさに「4年サイクルが機能しなくなる」ケースを描いています。
+    </p>
+  </div>
+
+  <h2>四半期末の推計値（米ドル）</h2>
+  <div class="tblwrap">
+    <table>
+      <thead>
+        <tr><th>時点</th><th>強気</th><th>最有力</th><th>弱気</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="foot">
+    <p>
+      ◆ 印は半減期（2028年4月）またはいずれかのシナリオのサイクル天井に最も近い四半期。
+      実績値は2026年8月14日時点の
+      約 $62,800 までを反映しています。予測は対数空間での単調3次補間により月次で生成しており、
+      実際の値動きに伴う短期的な変動（±30〜50%）は表現していません。
+    </p>
+    <p>
+      本資料は情報提供のみを目的としたシナリオ分析であり、投資助言ではありません。
+      暗号資産は極めて価格変動が大きく、投資元本を失う可能性があります。
+      投資判断はご自身の責任において行ってください。
+    </p>
+  </div>
+</div>
+
+<script>
+const DATA = {"labels": ["2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10", "2026-11", "2026-12", "2027-01", "2027-02", "2027-03", "2027-04", "2027-05", "2027-06", "2027-07", "2027-08", "2027-09", "2027-10", "2027-11", "2027-12", "2028-01", "2028-02", "2028-03", "2028-04", "2028-05", "2028-06", "2028-07", "2028-08", "2028-09", "2028-10", "2028-11", "2028-12", "2029-01", "2029-02", "2029-03", "2029-04", "2029-05", "2029-06", "2029-07", "2029-08", "2029-09", "2029-10", "2029-11", "2029-12", "2030-01", "2030-02", "2030-03", "2030-04", "2030-05", "2030-06", "2030-07", "2030-08", "2030-09", "2030-10", "2030-11", "2030-12"], "actual": [42600, 61200, 71300, 60600, 67500, 62700, 64600, 59000, 63300, 70200, 96400, 93400, 102400, 84400, 82500, 94200, 104600, 107200, 115800, 108900, 114000, 110000, 91000, 88400, 93000, 66000, 71000, 76000, 72000, 58500, 64000, 62800, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "forecastStart": 31, "base": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 62800, 60500, 55000, 51000, 52000, 55000, 58000, 60500, 63000, 65500, 68000, 70500, 73000, 75500, 78000, 81000, 84000, 87000, 90500, 94000, 98000, 102500, 107000, 112500, 118000, 124000, 131000, 138000, 145000, 151500, 158500, 165000, 171500, 178500, 185000, 191500, 198000, 204500, 211000, 218000, 225000, 234000, 243500, 248000, 246000, 241000, 234000, 226500, 220000, 214000, 208000, 202000, 196000], "bull": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 62800, 61000, 60000, 63000, 70500, 78000, 83500, 89000, 94500, 100000, 105000, 110000, 114500, 119500, 124000, 129000, 135000, 141500, 148500, 156000, 165000, 175500, 187500, 200500, 215000, 231000, 249000, 267500, 285000, 301500, 317500, 333500, 349000, 364500, 380000, 395000, 410000, 424500, 439000, 454000, 470000, 490000, 512500, 532000, 540000, 535500, 524500, 511500, 500000, 491000, 482000, 473500, 465000], "bear": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 62800, 57500, 52500, 48000, 44500, 42000, 40000, 38500, 38000, 38500, 39500, 41500, 43500, 45000, 46500, 48000, 49500, 51000, 52500, 53500, 55000, 56000, 57500, 58500, 59500, 60500, 62000, 63500, 65500, 67500, 69500, 72000, 74500, 77000, 80000, 82500, 85500, 88000, 90500, 93000, 95000, 97500, 99500, 102000, 105000, 108500, 111500, 114000, 115000, 114000, 111500, 108500, 106000], "halvings": [3, 51]};
+
+const F = n => "$" + n.toLocaleString("en-US");
+const Fc = n => n >= 1000 ? "$" + Math.round(n / 1000) + "K" : "$" + n;
+const jp = s => { const [y, m] = s.split("-"); return y + "年" + (+m) + "月"; };
+
+const SER = [
+  { k: "bull", nm: "強気", c: "var(--s-bull)" },
+  { k: "base", nm: "最有力", c: "var(--s-base)" },
+  { k: "bear", nm: "弱気", c: "var(--s-bear)" },
+];
+const peakOf = k => { const s = DATA[k]; let bi = 0; s.forEach((v, i) => { if (v && v > s[bi]) bi = i; }); return { i: bi, v: s[bi] }; };
+const troughOf = k => { const s = DATA[k].slice(DATA.forecastStart); let bi = 0; s.forEach((v, i) => { if (v && v < s[bi]) bi = i; }); return { i: bi + DATA.forecastStart, v: s[bi] }; };
+
+/* ---------- KPI row ---------- */
+const cur = DATA.actual[DATA.forecastStart];
+const ath = 126198;
+document.getElementById("kpis").innerHTML = [
+  ['現在値', F(cur), '2026年8月14日 · 最高値比 −' + Math.round((1 - cur / ath) * 100) + '%'],
+  ['最有力 2030年末', F(DATA.base.at(-1)), '現在値比 ' + (DATA.base.at(-1) / cur).toFixed(1) + '倍'],
+  ['最有力 サイクル天井', F(peakOf('base').v), jp(DATA.labels[peakOf('base').i]) + ' 前後'],
+  ['2030年末レンジ', Fc(DATA.bear.at(-1)) + '–' + Fc(DATA.bull.at(-1)).replace('$', ''), '弱気 〜 強気シナリオ', 'rng'],
+].map(([l, v, s, c]) => `<div class="kpi"><p class="lbl">${l}</p><div class="val ${c || ''}">${v}</div><div class="sub">${s}</div></div>`).join("");
+
+/* ---------- scenario cards ---------- */
+const NARR = {
+  bull: { p: '25%', li: [
+    '2026年6月の $58,000 が既にサイクル底。年内に反転し2027年から本格上昇。',
+    '米国戦略備蓄の買い増しと年金・保険による1〜3%配分が現実化。ETF資金が流入超に転換。',
+    '2028年半減期を $165,000 で迎え、2030年4月に $540,000 でピーク（前回天井比4.3倍）。',
+    '前提：実質金利の低下、規制の明確化、AI株からの資金ローテーション。'] },
+  base: { p: '50%', li: [
+    '2026年10〜11月に $51,000 で最終投げ売り。半減期の約18か月前という過去4回の底値タイミングと一致。',
+    '2027年は $58,000〜$84,000 の蓄積相場。ETF資金は流出が止まり中立へ。',
+    '2028年4月の半減期を $98,000 で通過し、2029年にかけて上昇。2030年3月に $248,000 でピーク。',
+    '2030年後半は天井後の調整に入り、年末は $196,000 まで押し戻される。'] },
+  bear: { p: '25%', li: [
+    '4年サイクルが機能不全に。ETF流出（2026年上期で約50億ドル）が2027年前半まで続く。',
+    '2027年4月に $38,000 まで下落。最高値からの下落率は70%とサイクル平均並み。',
+    '半減期の供給ショックは年間発行0.4%まで希薄化し、価格の起爆剤にならない。',
+    '2030年は $102,000〜$115,000 の緩慢な回復にとどまり、年末は $106,000。'] },
+};
+document.getElementById("cards").innerHTML = SER.map(s => {
+  const pk = peakOf(s.k), tr = troughOf(s.k), n = NARR[s.k];
+  return `<div class="sc">
+    <div class="top"><i style="background:${s.c}"></i><h3>${s.nm}シナリオ</h3><span class="p">確度 ${n.p}</span></div>
+    <div class="num">${F(DATA[s.k].at(-1))}</div>
+    <div class="numsub">2030年末 · 底値 ${Fc(tr.v)}（${jp(DATA.labels[tr.i])}）· 天井 ${Fc(pk.v)}（${jp(DATA.labels[pk.i])}）</div>
+    <ul>${n.li.map(x => `<li>${x}</li>`).join("")}</ul></div>`;
+}).join("");
+
+/* ---------- quarterly table ---------- */
+const qIdx = [];
+DATA.labels.forEach((l, i) => { const m = +l.split("-")[1]; if (i > DATA.forecastStart && m % 3 === 0) qIdx.push(i); });
+const marks = new Set([DATA.halvings[1], ...SER.map(s => peakOf(s.k).i)]);
+document.getElementById("tbody").innerHTML = qIdx.map(i => {
+  const mk = [...marks].some(m => Math.abs(m - i) <= 1);
+  return `<tr class="${mk ? 'mk' : ''}"><td>${jp(DATA.labels[i])}</td>` +
+    SER.map(s => `<td>${F(DATA[s.k][i])}</td>`).join("") + `</tr>`;
+}).join("");
+
+/* ---------- chart ---------- */
+const svg = document.getElementById("svg"), tip = document.getElementById("tip"), cb = document.getElementById("cb");
+const NS = "http://www.w3.org/2000/svg";
+const YMIN = 30000, YMAX = 620000;
+const TICKS = [30000, 50000, 100000, 200000, 300000, 500000];
+let geom = null;
+
+function draw() {
+  const W = Math.max(cb.clientWidth, 300);
+  const narrow = W < 640;
+  const H = narrow ? 400 : 480;
+  const M = { t: 22, r: narrow ? 16 : 104, b: 40, l: narrow ? 48 : 60 };
+  const pw = W - M.l - M.r, ph = H - M.t - M.b;
+  const N = DATA.labels.length;
+  const X = i => M.l + (i / (N - 1)) * pw;
+  const ly0 = Math.log(YMIN), lyR = Math.log(YMAX) - ly0;
+  const Y = v => M.t + ph - ((Math.log(v) - ly0) / lyR) * ph;
+  geom = { X, Y, M, pw, ph, N, W, narrow };
+
+  const e = (t, a) => { const n = document.createElementNS(NS, t); for (const k in a) n.setAttribute(k, a[k]); return n; };
+  const parts = [];
+  const path = vals => {
+    let d = "", on = false;
+    vals.forEach((v, i) => { if (v == null) { on = false; return; } d += (on ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1) + " "; on = true; });
+    return d;
+  };
+
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("height", H);
+  svg.textContent = "";
+  const g = e("g", {});
+
+  // forecast-period wash
+  g.appendChild(e("rect", { x: X(DATA.forecastStart), y: M.t, width: M.l + pw - X(DATA.forecastStart), height: ph, fill: "var(--fc-wash)" }));
+
+  // gridlines + y ticks
+  TICKS.forEach(v => {
+    g.appendChild(e("line", { x1: M.l, x2: M.l + pw, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": 1 }));
+    const t = e("text", { x: M.l - 9, y: Y(v) + 4, "text-anchor": "end", class: "tick" });
+    t.textContent = Fc(v); g.appendChild(t);
+  });
+  // baseline
+  g.appendChild(e("line", { x1: M.l, x2: M.l + pw, y1: M.t + ph, y2: M.t + ph, stroke: "var(--axis)", "stroke-width": 1 }));
+
+  // x ticks (January of each year)
+  DATA.labels.forEach((l, i) => {
+    const [y, m] = l.split("-");
+    if (m !== "01") return;
+    if (narrow && (+y) % 2 === 1) return;
+    const t = e("text", { x: X(i), y: M.t + ph + 20, "text-anchor": "middle", class: "tick" });
+    t.textContent = y; g.appendChild(t);
+  });
+
+  // uncertainty band (bull ↔ bear)
+  let up = "", dn = "";
+  for (let i = DATA.forecastStart; i < N; i++) up += (i === DATA.forecastStart ? "M" : "L") + X(i).toFixed(1) + " " + Y(DATA.bull[i]).toFixed(1) + " ";
+  for (let i = N - 1; i >= DATA.forecastStart; i--) dn += "L" + X(i).toFixed(1) + " " + Y(DATA.bear[i]).toFixed(1) + " ";
+  g.appendChild(e("path", { d: up + dn + "Z", fill: "var(--band)" }));
+
+  // halving markers
+  DATA.halvings.forEach((hi, k) => {
+    g.appendChild(e("line", { x1: X(hi), x2: X(hi), y1: M.t, y2: M.t + ph, stroke: "var(--axis)", "stroke-width": 1 }));
+    const t = e("text", { x: X(hi) + 5, y: M.t + 11, class: "evt" });
+    t.textContent = (narrow ? "半減期" : "半減期 " + (k ? "2028/4" : "2024/4")); g.appendChild(t);
+  });
+
+  // history
+  g.appendChild(e("path", { d: path(DATA.actual), fill: "none", stroke: "var(--hist)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+
+  // forecast lines
+  SER.forEach(s => {
+    g.appendChild(e("path", { d: path(DATA[s.k]), fill: "none", stroke: s.c, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+  });
+
+  // end markers + direct labels
+  SER.forEach(s => {
+    const v = DATA[s.k].at(-1), x = X(N - 1), y = Y(v);
+    g.appendChild(e("circle", { cx: x, cy: y, r: 4.5, fill: s.c, stroke: "var(--surface-1)", "stroke-width": 2 }));
+    if (narrow) return;
+    const a = e("text", { x: x + 11, y: y - 1, class: "endlbl" }); a.textContent = s.nm;
+    const b = e("text", { x: x + 11, y: y + 13, class: "endsub" }); b.textContent = F(v);
+    g.appendChild(a); g.appendChild(b);
+  });
+
+  // hover layer
+  const hov = e("g", { id: "hov", opacity: 0, "pointer-events": "none" });
+  hov.appendChild(e("line", { id: "cross", y1: M.t, y2: M.t + ph, stroke: "var(--axis)", "stroke-width": 1 }));
+  SER.concat([{ k: "actual", c: "var(--hist)" }]).forEach(s => {
+    hov.appendChild(e("circle", { id: "d-" + s.k, r: 4.5, fill: s.c, stroke: "var(--surface-1)", "stroke-width": 2 }));
+  });
+  g.appendChild(hov);
+  g.appendChild(e("rect", { id: "hit", x: M.l, y: M.t, width: pw, height: ph, fill: "transparent" }));
+  svg.appendChild(g);
+  svg.querySelector("#hit").addEventListener("pointermove", move);
+  svg.querySelector("#hit").addEventListener("pointerleave", leave);
+}
+
+function move(ev) {
+  if (!geom) return;
+  const r = svg.getBoundingClientRect();
+  const sx = geom.W / r.width;
+  const px = (ev.clientX - r.left) * sx;
+  let i = Math.round(((px - geom.M.l) / geom.pw) * (geom.N - 1));
+  i = Math.max(0, Math.min(geom.N - 1, i));
+  const hov = svg.querySelector("#hov");
+  hov.setAttribute("opacity", 1);
+  svg.querySelector("#cross").setAttribute("x1", geom.X(i));
+  svg.querySelector("#cross").setAttribute("x2", geom.X(i));
+
+  const rows = [];
+  [{ k: "actual", nm: "実績", c: "var(--hist)" }, ...SER].forEach(s => {
+    const v = DATA[s.k][i], d = svg.querySelector("#d-" + s.k);
+    if (v == null) { d.setAttribute("opacity", 0); return; }
+    d.setAttribute("opacity", 1);
+    d.setAttribute("cx", geom.X(i)); d.setAttribute("cy", geom.Y(v));
+    rows.push(`<div class="t-r"><i style="background:${s.c}"></i>${s.nm}<b>${F(v)}</b></div>`);
+  });
+  tip.innerHTML = `<div class="t-m">${jp(DATA.labels[i])}${i > DATA.forecastStart ? "・予測" : ""}</div>` + rows.join("");
+  tip.style.opacity = 1;
+  const tw = tip.offsetWidth, cx = geom.X(i) / sx;
+  tip.style.left = Math.max(4, Math.min(r.width - tw - 4, cx - tw / 2)) + "px";
+  tip.style.top = "8px";
+}
+function leave() { tip.style.opacity = 0; const h = svg.querySelector("#hov"); if (h) h.setAttribute("opacity", 0); }
+
+draw();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(draw, 120); });
+</script>
