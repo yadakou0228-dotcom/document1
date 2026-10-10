@@ -1,0 +1,683 @@
+<title>起業適性診断</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: 設問カード12枚の縦列 + 右側に追従する採点表（スマホでは下に積み、下部バーに合計を常時表示） */
+:root {
+  --bg: #eef2f1;
+  --surface: #ffffff;
+  --sunk: #f5f8f7;
+  --ink: #1b2a2f;
+  --muted: #5a6a6f;
+  --line: #d3dcda;
+  --accent: #1f6f64;
+  --accent-soft: #dcefeb;
+  --bad: #b4372f;   --bad-soft: #f8e3e1;
+  --mid: #9a6412;   --mid-soft: #f7ecd8;
+  --good: #2b7a46;  --good-soft: #e0f1e6;
+  --font-display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111718; --surface: #1a2224; --sunk: #151c1e; --ink: #e3ebe9; --muted: #95a6a5; --line: #2d3a3c;
+    --accent: #62c1b1; --accent-soft: #1d3633;
+    --bad: #ec7d74; --bad-soft: #3a2220; --mid: #e3ac52; --mid-soft: #362b18; --good: #6fc88d; --good-soft: #1b3324;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111718; --surface: #1a2224; --sunk: #151c1e; --ink: #e3ebe9; --muted: #95a6a5; --line: #2d3a3c;
+  --accent: #62c1b1; --accent-soft: #1d3633;
+  --bad: #ec7d74; --bad-soft: #3a2220; --mid: #e3ac52; --mid-soft: #362b18; --good: #6fc88d; --good-soft: #1b3324;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.7;
+  padding-inline: 16px; padding-block: 0 96px;
+}
+.wrap { max-width: 1160px; margin: 0 auto; }
+header.top { padding-block: 40px 24px; display: grid; gap: 10px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; color: var(--accent); font-weight: 700; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4.4vw, 40px); line-height: 1.25; margin: 0; text-wrap: balance; }
+.lead { color: var(--muted); margin: 0; max-width: 62ch; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+button {
+  font: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  padding: 7px 14px; border-radius: 6px;
+}
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.notice { font-size: 13px; padding: 8px 12px; border-radius: 6px; background: var(--mid-soft); color: var(--ink); border: 1px solid var(--line); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: start; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* 設問カード */
+.qs { display: grid; gap: 18px; min-width: 0; }
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.q-head { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: start; padding: 18px 20px 12px; }
+.q-no { font-family: var(--font-display); font-weight: 800; font-size: 15px; color: var(--accent); white-space: nowrap; padding-top: 2px; }
+.q-title { font-weight: 700; font-size: 17px; line-height: 1.5; margin: 0; }
+.q-focus { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+.chip {
+  font-family: var(--font-num); font-weight: 600; font-size: 13px; white-space: nowrap;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--sunk);
+}
+.chip.s0 { color: var(--bad); background: var(--bad-soft); border-color: transparent; }
+.chip.s1 { color: var(--mid); background: var(--mid-soft); border-color: transparent; }
+.chip.s2 { color: var(--good); background: var(--good-soft); border-color: transparent; }
+.q-body { padding: 4px 20px 16px; display: grid; gap: 14px; }
+.field { display: grid; gap: 6px; }
+.field > label, .field > .lbl { font-size: 14px; font-weight: 500; }
+.field .sub { font-size: 12px; color: var(--muted); }
+.field .opt { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; margin-left: 6px; font-weight: 400; }
+.inrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+input[type="text"], textarea {
+  font: inherit; color: var(--ink); background: var(--sunk);
+  border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px;
+}
+input.num { width: 13em; max-width: 100%; text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+textarea { width: 100%; min-height: 3.2em; resize: vertical; }
+input:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.unit { color: var(--muted); font-size: 14px; }
+.echo { font-size: 12px; color: var(--accent); font-family: var(--font-num); }
+.choices { display: grid; gap: 6px; }
+.choice { display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; background: var(--sunk); }
+.choice:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.choice input { margin-top: 5px; accent-color: var(--accent); }
+.q-out { padding: 12px 20px; border-top: 1px dashed var(--line); background: var(--sunk); font-size: 14px; display: grid; gap: 2px; }
+.q-out b { font-family: var(--font-num); }
+.q-out .why { color: var(--muted); font-size: 13px; }
+
+/* 採点表 */
+aside.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 16px; min-width: 0; }
+@media (max-width: 960px) { aside.result { position: static; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+.total { display: flex; align-items: baseline; gap: 6px; }
+.total .big { font-family: var(--font-num); font-size: 52px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.total .of { font-family: var(--font-num); color: var(--muted); font-size: 18px; }
+.meter { position: relative; height: 10px; border-radius: 5px; background: var(--sunk); border: 1px solid var(--line); margin-top: 12px; overflow: hidden; }
+.meter i { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 5px; transition: width .3s; }
+.ticks { display: grid; grid-template-columns: 9fr 6fr 5fr 5fr; font-size: 11px; color: var(--muted); margin-top: 4px; font-family: var(--font-num); }
+.verdict { margin-top: 14px; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line); }
+.verdict h3 { font-family: var(--font-display); font-size: 19px; margin: 0; line-height: 1.4; }
+.verdict p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.verdict.b0 { background: var(--bad-soft); } .verdict.b0 h3 { color: var(--bad); }
+.verdict.b1 { background: var(--mid-soft); } .verdict.b1 h3 { color: var(--mid); }
+.verdict.b2 { background: var(--accent-soft); } .verdict.b2 h3 { color: var(--accent); }
+.verdict.b3 { background: var(--good-soft); } .verdict.b3 h3 { color: var(--good); }
+.pending { font-size: 12px; color: var(--muted); margin-top: 8px; }
+h2.sec { font-size: 13px; letter-spacing: .1em; color: var(--muted); margin: 0 0 10px; font-weight: 700; }
+.grid12 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.cell { display: grid; place-items: center; border-radius: 6px; padding: 6px 0; border: 1px solid var(--line); background: var(--sunk); text-decoration: none; color: var(--muted); font-size: 11px; line-height: 1.2; }
+.cell b { font-family: var(--font-num); font-size: 16px; }
+.cell.s0 { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+.cell.s1 { background: var(--mid-soft); color: var(--mid); border-color: transparent; }
+.cell.s2 { background: var(--good-soft); color: var(--good); border-color: transparent; }
+ul.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+ul.list li { display: grid; grid-template-columns: auto 1fr; gap: 10px; font-size: 13px; line-height: 1.6; }
+ul.list .tag { font-family: var(--font-num); font-weight: 600; font-size: 12px; padding: 1px 7px; border-radius: 4px; height: fit-content; }
+ul.list .tag.s0 { background: var(--bad-soft); color: var(--bad); }
+ul.list .tag.s1 { background: var(--mid-soft); color: var(--mid); }
+ul.list .tag.warn { background: var(--bad); color: var(--surface); }
+ul.list strong { display: block; font-size: 14px; }
+ol.actions { margin: 0; padding-left: 1.3em; font-size: 13px; display: grid; gap: 4px; }
+.empty { font-size: 13px; color: var(--muted); }
+.copyrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.copied { font-size: 12px; color: var(--accent); }
+textarea.export { font-family: var(--font-num); font-size: 12px; min-height: 10em; margin-top: 8px; }
+
+.bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  display: none; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface); border-top: 1px solid var(--line);
+}
+.bar a { color: var(--accent); font-weight: 700; text-decoration: none; font-size: 14px; }
+.bar .t { font-family: var(--font-num); font-weight: 600; font-size: 18px; }
+@media (max-width: 960px) { .bar { display: flex; } }
+footer { color: var(--muted); font-size: 12px; padding-block: 32px 0; }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">独立準備度セルフチェック ／ 全12問・24点満点</div>
+    <h1>起業適性診断</h1>
+    <p class="lead">各問の質問に数字や選択肢で答えると、その場で0〜2点を自動採点します。合計点から総合判定を出し、0点・1点の項目を「いまの弱点」として改善アクションと一緒に表示します。金額は「150万」「1,500,000」どちらの書き方でも入力できます。</p>
+    <div class="toolbar">
+      <button type="button" id="btn-sample">記入例を入れる</button>
+      <button type="button" id="btn-clear">すべてクリア</button>
+    </div>
+    <div class="notice" id="sample-note" hidden>いま表示されているのは記入例です。「すべてクリア」を押してから、ご自身の回答を入力してください。</div>
+  </header>
+
+  <div class="layout">
+    <main class="qs" id="qs"></main>
+
+    <aside class="result" id="result">
+      <section class="card">
+        <h2 class="sec">総合得点</h2>
+        <div class="total"><span class="big" id="r-total">0</span><span class="of">/ 24 点</span></div>
+        <div class="meter"><i id="r-meter" style="width:0%"></i></div>
+        <div class="ticks"><span>0</span><span>9</span><span>15</span><span>20〜24</span></div>
+        <div class="verdict" id="r-verdict"></div>
+        <div class="pending" id="r-pending"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">問ごとの得点</h2>
+        <div class="grid12" id="r-grid"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">現在の弱点</h2>
+        <ul class="list" id="r-weak"></ul>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">退職前に実行すること</h2>
+        <ol class="actions" id="r-actions"></ol>
+      </section>
+
+      <section class="card">
+        <h2 class="sec">結果を書き出す</h2>
+        <div class="copyrow">
+          <button type="button" class="primary" id="btn-copy">結果をテキストでコピー</button>
+          <span class="copied" id="copied" hidden>コピーしました</span>
+        </div>
+        <textarea class="export" id="export" readonly aria-label="診断結果テキスト" hidden></textarea>
+      </section>
+    </aside>
+  </div>
+
+  <footer>動画『起業で失敗する人には共通点がある!』（脱・税理士スガワラくん）の診断表に準拠した採点基準です。判定は目安であり、資金計画や税額の最終確認は専門家にご相談ください。</footer>
+</div>
+
+<div class="bar"><span>合計 <span class="t" id="bar-total">0 / 24</span></span><a href="#result">判定と弱点を見る ↓</a></div>
+
+<script id="logic">
+/* ===== 採点ロジック（画面から独立。各問 score(v) は {score, why} か未回答なら null を返す） ===== */
+function toNum(s) {
+  if (s === undefined || s === null) return null;
+  let t = String(s).trim().replace(/[０-９．]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+    .replace(/[,，円\s人社件ヶヵか月年%％]/g, "");
+  if (t === "") return null;
+  let mult = 1;
+  if (/万$/.test(t)) { mult = 10000; t = t.slice(0, -1); }
+  const n = Number(t);
+  return Number.isFinite(n) ? n * mult : null;
+}
+function yen(n) {
+  if (n === null || n === undefined) return "";
+  if (Math.abs(n) >= 10000) return (Math.round(n / 1000) / 10).toLocaleString("ja-JP") + "万円";
+  return Math.round(n).toLocaleString("ja-JP") + "円";
+}
+const has = s => s !== undefined && s !== null && String(s).trim() !== "";
+
+const QUESTIONS = [
+  {
+    no: 1, title: "生活費の何ヶ月分の貯金額があるか？",
+    focus: "毎月の基礎生活費（家賃・食費・社会保険料等）を把握し、個人として生活できる備えがあるか",
+    fields: [
+      { key: "living", type: "yen", label: "あなたの現在の1ヶ月あたりの生活費は？", sub: "家賃・食費・光熱費・通信費・保険料などの合計" },
+      { key: "savings", type: "yen", label: "現在の貯金額は？", sub: "事業用に分けている資金は含めない、生活のための貯金" },
+    ],
+    score(v) {
+      const L = toNum(v.living), S = toNum(v.savings);
+      if (L === null || S === null) return null;
+      if (L <= 0) return { score: 0, why: "生活費が0円になっています。毎月の実額を入力してください" };
+      const m = S / L;
+      const s = m >= 12 ? 2 : m >= 6 ? 1 : 0;
+      return { score: s, why: `貯金は生活費の${m.toFixed(1)}ヶ月分（${["6ヶ月未満","6〜12ヶ月","12ヶ月以上"][s]}）` };
+    },
+    advice: "生活費を確定させ、まず生活費12ヶ月分（最低でも6ヶ月分）の生活防衛資金を貯める",
+  },
+  {
+    no: 2, title: "今年1年の税金・社会保険料を把握しているか？",
+    focus: "会社員退職後に前年所得に応じて請求される住民税・国民健康保険料等を試算しているか",
+    fields: [
+      { key: "know", type: "choice", label: "退職後、前年の所得をもとに住民税・国民健康保険料が請求される仕組みを知っていますか？",
+        options: ["知らない／何も計算していない", "仕組みはおよそ知っている"] },
+      { key: "amount", type: "yen", optional: true, label: "独立1年目に払う住民税・国民健康保険料・国民年金の見込み総額は？", sub: "試算していなければ空欄のまま" },
+      { key: "plan", type: "choice", optional: true, label: "その支払い時期と、どの資金から払うかを決めていますか？",
+        options: ["決めていない", "決めている"] },
+    ],
+    score(v) {
+      if (!has(v.know)) return null;
+      const A = toNum(v.amount);
+      if (A !== null && A > 0) {
+        if (v.plan === "1") return { score: 2, why: `見込み額 ${yen(A)} を試算済みで、支払い計画もある` };
+        return { score: 1, why: `見込み額 ${yen(A)} は試算済み。支払い計画が未定のため1点` };
+      }
+      if (v.know === "1") return { score: 1, why: "仕組みは知っているが具体額を未試算" };
+      return { score: 0, why: "税金・社会保険料を何も計算していない" };
+    },
+    advice: "市区町村の試算ツール等で、住民税・国保・国民年金の1年分を金額で出し、納付月と支払い元の資金を決める",
+  },
+  {
+    no: 3, title: "独立スタート時点でお金を払ってくれる顧客がいるか？",
+    focus: "退職してから営業を探すのでは遅い。初日から売上発生が確定している顧客の存在",
+    fields: [
+      { key: "confirmed", type: "num", unit: "人・社", label: "独立初日から売上が確定している（契約・発注の約束がある）顧客の数は？" },
+      { key: "prospects", type: "num", unit: "人・社", label: "確定はしていないが、買ってくれそうな見込み客の数は？" },
+    ],
+    score(v) {
+      const C = toNum(v.confirmed), P = toNum(v.prospects);
+      if (C === null || P === null) return null;
+      if (C >= 3) return { score: 2, why: `売上確定の顧客が${C}人・社（3以上）` };
+      if (C >= 1) return { score: 1, why: `売上確定の顧客は${C}人・社。3人・社に届いていない` };
+      if (P >= 1) return { score: 1, why: `見込み客${P}人・社はいるが、売上の確定はゼロ` };
+      return { score: 0, why: "お金を払ってくれる顧客が誰か分からない" };
+    },
+    advice: "退職届を出す前に、独立初日から支払いが確定している顧客を3人（3社）以上確保する",
+  },
+  {
+    no: 4, title: "会社員のまま売上を作った経験（副業等）があるか？",
+    focus: "組織の看板に依存せず、自分の力で「0→1」を生み出し対価を得た実績があるか",
+    fields: [
+      { key: "exp", type: "choice", label: "会社の看板を使わずに、自分で売って代金を受け取ったことはありますか？",
+        options: ["一度もない", "単発で売ったことがある", "継続して売っている（いた）"] },
+      { key: "months", type: "num", unit: "ヶ月", optional: true, label: "毎月途切れずに売上が立った期間は最長何ヶ月？", sub: "「継続して売っている」を選んだ場合に入力" },
+    ],
+    score(v) {
+      if (!has(v.exp)) return null;
+      if (v.exp === "0") return { score: 0, why: "自力で販売・集金した経験がない" };
+      if (v.exp === "1") return { score: 1, why: "単発の販売経験のみ。継続性は未検証" };
+      const M = toNum(v.months);
+      if (M === null) return { score: 1, why: "継続期間が未入力のため1点（6ヶ月以上なら2点）" };
+      if (M >= 6) return { score: 2, why: `${M}ヶ月継続して売上を立てた実績あり` };
+      return { score: 1, why: `継続期間は${M}ヶ月。6ヶ月に届いていない` };
+    },
+    advice: "会社を辞めずに副業として販売を始め、6ヶ月以上続けて売れるかを実証する",
+  },
+  {
+    no: 5, title: "その仕事の経験が3年以上あるか？",
+    focus: "公庫調査で創業者の97.9%が関連実務の経験者。未経験分野への新規参入は極めて高リスク",
+    fields: [
+      { key: "years", type: "num", unit: "年", label: "独立して行う仕事そのものの実務経験は何年？", sub: "未経験なら0" },
+      { key: "related", type: "choice", label: "経験が浅い場合、関連する業務の経験はありますか？",
+        options: ["ない", "関連業務の経験がある"] },
+      { key: "proof", type: "choice", label: "顧客に示せる実績（事例・成果物・紹介者など）はありますか？",
+        options: ["示せる実績はない", "示せる実績がある"] },
+    ],
+    score(v) {
+      const Y = toNum(v.years);
+      if (Y === null || !has(v.related) || !has(v.proof)) return null;
+      if (Y >= 3 && v.proof === "1") return { score: 2, why: `経験${Y}年で、顧客に示せる実績がある` };
+      if (Y >= 3) return { score: 1, why: `経験${Y}年あるが、顧客に示せる実績がないため1点` };
+      if (Y >= 1 || v.related === "1") return { score: 1, why: Y >= 1 ? `経験${Y}年（3年未満）` : "本業は未経験だが関連業務の経験あり" };
+      return { score: 0, why: "業界・業務とも未経験" };
+    },
+    advice: "独立する分野の実務経験を3年以上積み、事例や成果物など顧客に見せられる実績を作る",
+  },
+  {
+    no: 6, title: "売上の作り方を数字で説明できるか？",
+    focus: "「SNS集客」等の曖昧な予想ではなく、客数・単価・リピート率等の数字で論理的に説明できるか",
+    fields: [
+      { key: "level", type: "choice", label: "売上の作り方をどこまで考えていますか？",
+        options: ["SNSで集客するなど、曖昧にしか考えていない", "売上目標（金額）だけ決まっている", "単価・客数・リピート率まで説明できる"] },
+      { key: "target", type: "yen", optional: true, label: "月の売上目標は？" },
+      { key: "price", type: "yen", optional: true, label: "平均の客単価は？" },
+      { key: "customers", type: "num", unit: "人/月", optional: true, label: "1ヶ月の想定客数は？" },
+      { key: "repeat", type: "num", unit: "%", optional: true, label: "想定リピート率は？" },
+    ],
+    score(v) {
+      if (!has(v.level)) return null;
+      const T = toNum(v.target), P = toNum(v.price), C = toNum(v.customers), R = toNum(v.repeat);
+      if (v.level === "0") return { score: 0, why: "具体性のない願望レベルの計画" };
+      if (v.level === "2") {
+        if (P !== null && C !== null && R !== null) {
+          const calc = P * C;
+          let why = `単価${yen(P)} × 客数${C}人 ＝ 月${yen(calc)}、リピート率${R}%まで数字で説明できる`;
+          if (T !== null && T > 0 && calc < T) why += `（ただし目標${yen(T)}に${yen(T - calc)}届かない）`;
+          return { score: 2, why };
+        }
+        return { score: 1, why: "単価・客数・リピート率の数字が入力されていないため1点" };
+      }
+      if (T !== null && T > 0) return { score: 1, why: `目標${yen(T)}はあるが、達成の内訳（単価×客数）が不明` };
+      return { score: 0, why: "売上目標の金額が入力されていないため0点" };
+    },
+    advice: "売上を「単価 × 客数 × リピート率」に分解し、それぞれの数字の根拠を説明できるようにする",
+  },
+  {
+    no: 7, title: "損益分岐点を把握しているか？",
+    focus: "固定費と粗利益率から、事業が赤字にならない最低限の売上高を正確に把握しているか",
+    fields: [
+      { key: "fixed", type: "yen", optional: true, label: "事業の毎月の固定費は？", sub: "家賃・人件費・通信費・広告費など、売上がなくてもかかる費用" },
+      { key: "margin", type: "num", unit: "%", optional: true, label: "粗利益率は？", sub: "（売上 − 仕入・原価）÷ 売上" },
+      { key: "bep", type: "yen", optional: true, label: "あなたが計算した、毎月の損益分岐点売上高は？", sub: "電卓で計算して入力。分からなければ空欄" },
+      { key: "none", type: "choice", optional: true, label: "上の数字が1つも分からない場合はこちら",
+        options: ["売上のことしか考えていない"] },
+    ],
+    score(v) {
+      const F = toNum(v.fixed), M = toNum(v.margin), B = toNum(v.bep);
+      if (F === null && M === null && B === null) {
+        return v.none === "0" ? { score: 0, why: "固定費・損益分岐点を把握していない" } : null;
+      }
+      if (F === null || F <= 0) return { score: 0, why: "毎月の固定費を把握していないため0点" };
+      if (M === null || M <= 0 || M > 100) return { score: 1, why: `固定費${yen(F)}は把握。粗利益率が未入力のため損益分岐点を確認できない` };
+      const correct = F / (M / 100);
+      if (B !== null && Math.abs(B - correct) / correct <= 0.1)
+        return { score: 2, why: `固定費${yen(F)} ÷ 粗利益率${M}% ＝ ${yen(correct)}。正しく計算できている` };
+      return { score: 1, why: `固定費は把握。正しい損益分岐点は ${yen(F)} ÷ ${M}% ＝ ${yen(correct)}${B !== null ? `（入力値 ${yen(B)} とずれている）` : "（未計算）"}` };
+    },
+    advice: "「損益分岐点売上高 ＝ 毎月の固定費 ÷ 粗利益率」で、赤字にならない最低売上を計算しておく",
+  },
+  {
+    no: 8, title: "売上ゼロでも事業を6ヶ月間続けられるか？",
+    focus: "個人の生活費とは別の「事業用運転資金」。売上が立たなくても事業用固定費を払える余力",
+    fields: [
+      { key: "funds", type: "yen", label: "生活費とは別に用意できる事業用の資金は？", sub: "問1の貯金とは分けて考える" },
+      { key: "bizfixed", type: "yen", optional: true, label: "事業の毎月の固定費は？", sub: "空欄なら問7の固定費を使います" },
+    ],
+    score(v, all) {
+      const F = toNum(v.funds);
+      const X = toNum(v.bizfixed) ?? toNum(all && all[7] && all[7].fixed);
+      if (F === null || X === null) return null;
+      if (X <= 0) return { score: 0, why: "固定費が0円になっています。毎月の実額を入力してください" };
+      const m = F / X;
+      const s = m >= 12 ? 2 : m >= 6 ? 1 : 0;
+      return { score: s, why: `事業資金は固定費の${m.toFixed(1)}ヶ月分（${["6ヶ月未満","6〜12ヶ月","12ヶ月以上"][s]}）` };
+    },
+    advice: "生活費とは別に、事業の固定費12ヶ月分（最低6ヶ月分）の運転資金を用意する",
+  },
+  {
+    no: 9, title: "借入れと自己資金を分けて考えているか？",
+    focus: "リボ払い利用中の起業は厳禁。手元自己資金と公庫等の創業融資を適切に計画しているか",
+    fields: [
+      { key: "revo", type: "choice", label: "現在、リボ払いやカードローンを利用していますか？",
+        options: ["利用している", "利用していない"] },
+      { key: "plan", type: "choice", label: "開業資金の調達はどう考えていますか？",
+        options: ["あまり考えていない", "自己資金だけでとりあえずやる予定", "必要資金を計算し、融資相談も含めて計画済み"] },
+      { key: "need", type: "yen", optional: true, label: "計算した必要資金（設備資金＋運転資金）の総額は？" },
+    ],
+    score(v) {
+      if (!has(v.revo) || !has(v.plan)) return null;
+      if (v.revo === "0") return { score: 0, why: "リボ払い・カードローン利用中（借金体質のままの起業は即刻破綻の元）" };
+      if (v.plan === "0") return { score: 0, why: "資金調達を考えていない" };
+      if (v.plan === "1") return { score: 1, why: "自己資金のみ。借入を避けて資金不足に陥る恐れ" };
+      const N = toNum(v.need);
+      if (N !== null && N > 0) return { score: 2, why: `必要資金${yen(N)}を計算し、融資を含めて計画済み` };
+      return { score: 1, why: "計画済みとの回答だが、必要資金の金額が未入力のため1点" };
+    },
+    advice: "リボ払い・カードローンを完済し、必要資金を計算したうえで日本政策金融公庫などに創業融資を相談する",
+  },
+  {
+    no: 10, title: "会社を辞めたい理由は何か？",
+    focus: "現状からの逃避ではなく、どのような事業・ビジョンを実現し社会や顧客に貢献したいか",
+    fields: [
+      { key: "motive", type: "choice", label: "会社を辞めたい一番の理由に近いものは？",
+        options: ["上司や会社から逃げたい", "収入を増やしたい／自由になりたい", "実現したい事業や明確なビジョンがある"] },
+      { key: "vision", type: "text", optional: true, label: "実現したい事業を一文で書くと？" },
+      { key: "value", type: "text", optional: true, label: "誰の、どんな困りごとを解決しますか？" },
+    ],
+    score(v) {
+      if (!has(v.motive)) return null;
+      if (v.motive === "0") return { score: 0, why: "逃避目的の起業は事業の壁に直面して挫折しやすい" };
+      if (v.motive === "1") return { score: 1, why: "意欲はあるが、顧客視点のビジョンが薄い" };
+      if (has(v.vision) && has(v.value)) return { score: 2, why: "事業内容と、顧客に提供する価値を言葉にできている" };
+      return { score: 1, why: "ビジョンがあるとの回答だが、事業内容か顧客の困りごとが未記入のため1点" };
+    },
+    advice: "「誰の、どんな困りごとを、どう解決するか」を一文で言える事業の軸をつくる",
+  },
+  {
+    no: 11, title: "自分で営業ができるか？",
+    focus: "「良い物を作れば自然に売れる」という幻想を排し、自らの力で顧客を開拓できる営業力",
+    fields: [
+      { key: "stance", type: "choice", label: "顧客はどうやって獲得すると考えていますか？",
+        options: ["商品が良ければ自然に売れる", "紹介やプラットフォームがあれば売れる", "自分から声をかけて新規顧客を獲得できる"] },
+      { key: "closed", type: "num", unit: "件", optional: true, label: "直近1年で、自分から声をかけて成約した件数は？" },
+    ],
+    score(v) {
+      if (!has(v.stance)) return null;
+      if (v.stance === "0") return { score: 0, why: "営業を軽視する典型的な失敗パターン" };
+      if (v.stance === "1") return { score: 1, why: "他者・外部媒体に頼っており、自力で獲得する力が不足" };
+      const C = toNum(v.closed);
+      if (C !== null && C >= 1) return { score: 2, why: `自分から開拓して${C}件成約した実績がある` };
+      return { score: 1, why: "自力で獲得できるとの回答だが、成約実績が0件または未入力のため1点" };
+    },
+    advice: "紹介や媒体に頼らず、自分から見込み客に声をかけて成約する経験を副業期間中に積む",
+  },
+  {
+    no: 12, title: "最悪の場合、会社員に戻れるか？",
+    focus: "起業は3年で5割、10年で9割が廃業する世界。万一の撤退時にも生活破綻しないセーフティネット",
+    fields: [
+      { key: "route", type: "choice", label: "事業をたたむことになったら、どうしますか？",
+        options: ["失敗したら後がない", "条件を下げれば戻れる場所はある", "再就職できる人脈がある／いつでも働ける"] },
+      { key: "contacts", type: "num", unit: "人・社", optional: true, label: "「戻ってきたら雇う」と言ってくれそうな人・会社の数は？" },
+    ],
+    score(v) {
+      if (!has(v.route)) return null;
+      if (v.route === "0") return { score: 0, why: "背水の陣。再起不能に陥るリスク" };
+      if (v.route === "1") return { score: 1, why: "最低限の復帰ルートはあるが不十分" };
+      const C = toNum(v.contacts);
+      if (C !== null && C >= 1) return { score: 2, why: `再就職先の当てが${C}人・社ある` };
+      return { score: 1, why: "人脈があるとの回答だが、具体的な当てが0または未入力のため1点" };
+    },
+    advice: "辞める前に、撤退時に声をかけてくれる人や会社を具体的に確保しておく",
+  },
+];
+
+const BANDS = [
+  { min: 0, max: 8, cls: "b0", name: "今会社を辞めるのは非常に危険", sub: "会社員継続を強く推奨",
+    text: "生活費・税金の認識、顧客、営業力、運転資金の準備が決定的に不足しています。この状態で独立すると、極めて高い確率で資金ショートし生活破綻に追い込まれます。",
+    actions: ["今すぐ辞めず会社員を継続する", "生活費と税金を把握し、起業前貯蓄（200〜300万円）を作る", "リボ払いや借入がある場合は完済を最優先にする", "本業の実務経験とスキルを深める"] },
+  { min: 9, max: 14, cls: "b1", name: "会社員を続けながら副業で学ぶ・体験する", sub: "育成・副業期",
+    text: "起業への関心や部分的な知識はありますが、自力での継続的な売上創出や資金余力に不安が残ります。起業志望者に最も多いゾーンです。",
+    actions: ["会社を辞めずに、副業としてビジネスを開始する", "ゼロからイチの売上を生み出す販売経験を積む", "最低6ヶ月以上継続して売れるかを実証する", "損益分岐点や税金の計算を具体的にマスターする"] },
+  { min: 15, max: 19, cls: "b2", name: "起業を検討してOK", sub: "不足項目の改善が必須（改善・準備期）",
+    text: "独立に必要な基礎力・実務経験・営業力は概ね備わっていますが、特定の項目に改善すべき弱点が残っています。",
+    actions: ["0点・1点だった弱点項目を退職日までに補強する", "売上確定客を3社以上確保してから退職届を出す", "創業融資の相談を進める"] },
+  { min: 20, max: 24, cls: "b3", name: "具体的に独立を検討してOK", sub: "自信を持って独立へ",
+    text: "資金力、確定顧客、営業力、計数管理、リスクヘッジが高い水準で揃っています。主要なリスクがコントロールされた状態です。",
+    actions: ["具体的な事業計画書の策定と開業手続きに入る", "日本政策金融公庫等への創業融資の申請を完了させる", "確定顧客への契約・サービス提供体制を整える"] },
+];
+
+/* 5大鉄則に照らした警告（点数とは別に表示） */
+function ruleWarnings(all, results) {
+  const w = [];
+  const sav = toNum(all[1] && all[1].savings);
+  if (sav !== null && sav < 2000000) w.push({ title: "鉄則1：起業前に200〜300万円を貯める", text: `現在の貯金は${yen(sav)}。会社員のうちに貯められない人は、独立後もお金を管理できません。` });
+  if (all[9] && all[9].revo === "0") w.push({ title: "鉄則2：リボ払い・カードローン利用中の起業は絶対NG", text: "私的な借入を完済してから起業してください。" });
+  if (results[2] && results[2].score === 0) w.push({ title: "鉄則3：確定顧客ゼロは他が満点でも退場", text: "辞めてから営業先を探すのでは間に合いません。" });
+  const y = toNum(all[5] && all[5].years);
+  if (y !== null && y === 0 && all[5].related !== "1") w.push({ title: "鉄則4：未経験業種への参入は避ける", text: "創業者の97.9%は同種・関連の経験者です。" });
+  if (all[12] && all[12].route === "0") w.push({ title: "鉄則5：会社員に戻るルートを用意する", text: "最悪の場合でも生活が破綻しない備えが生存率を高めます。" });
+  return w;
+}
+
+function evaluate(all) {
+  const results = QUESTIONS.map(q => q.score(all[q.no] || {}, all));
+  const answered = results.filter(r => r !== null);
+  const total = answered.reduce((a, r) => a + r.score, 0);
+  const band = BANDS.find(b => total >= b.min && total <= b.max);
+  const weak = QUESTIONS.map((q, i) => ({ q, r: results[i] }))
+    .filter(x => x.r && x.r.score < 2)
+    .sort((a, b) => a.r.score - b.r.score || a.q.no - b.q.no);
+  return { results, total, band, weak, unanswered: results.length - answered.length, warnings: ruleWarnings(all, results) };
+}
+
+if (typeof module !== "undefined") module.exports = { QUESTIONS, BANDS, evaluate, toNum, yen };
+</script>
+
+<script>
+/* ===== 画面 ===== */
+const SAMPLE = {
+  1: { living: "20万", savings: "180万" },
+  2: { know: "1", amount: "", plan: "" },
+  3: { confirmed: "1", prospects: "4" },
+  4: { exp: "1", months: "" },
+  5: { years: "6", related: "1", proof: "1" },
+  6: { level: "1", target: "60万", price: "", customers: "", repeat: "" },
+  7: { fixed: "25万", margin: "60", bep: "", none: "" },
+  8: { funds: "120万", bizfixed: "" },
+  9: { revo: "1", plan: "1", need: "" },
+  10: { motive: "2", vision: "中小企業向けに経理のクラウド化を代行する", value: "経理担当が1人しかいない会社の、月末の手作業と属人化" },
+  11: { stance: "1", closed: "" },
+  12: { route: "2", contacts: "2" },
+};
+const STORE_KEY = "kigyo-shindan-v1";
+let state = {};
+let isSample = false;
+
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null"); if (s && s.answers) return s; } catch (e) {}
+  return null;
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({ answers: state, sample: isSample })); } catch (e) {}
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function renderQuestions() {
+  const root = document.getElementById("qs");
+  root.innerHTML = QUESTIONS.map(q => `
+    <article class="q" id="q${q.no}">
+      <div class="q-head">
+        <span class="q-no">問${q.no}</span>
+        <div><h3 class="q-title">${esc(q.title)}</h3><p class="q-focus">${esc(q.focus)}</p></div>
+        <span class="chip" id="chip${q.no}">未回答</span>
+      </div>
+      <div class="q-body">${q.fields.map(f => fieldHTML(q, f)).join("")}</div>
+      <div class="q-out" id="out${q.no}"></div>
+    </article>`).join("");
+  root.addEventListener("input", onInput);
+  root.addEventListener("change", onInput);
+}
+function fieldHTML(q, f) {
+  const id = `f${q.no}_${f.key}`;
+  const opt = f.optional ? '<span class="opt">任意</span>' : "";
+  const sub = f.sub ? `<span class="sub">${esc(f.sub)}</span>` : "";
+  if (f.type === "choice") {
+    return `<fieldset class="field" style="border:0;padding:0;margin:0"><legend class="lbl" style="padding:0;margin-bottom:6px;font-size:14px;font-weight:500">${esc(f.label)}${opt}</legend>${sub}
+      <div class="choices">${f.options.map((o, i) => `
+        <label class="choice"><input type="radio" name="${id}" id="${id}_${i}" value="${i}" data-q="${q.no}" data-k="${f.key}"><span>${esc(o)}</span></label>`).join("")}
+      </div></fieldset>`;
+  }
+  if (f.type === "text") {
+    return `<div class="field"><label for="${id}">${esc(f.label)}${opt}</label>${sub}<textarea id="${id}" data-q="${q.no}" data-k="${f.key}" rows="2"></textarea></div>`;
+  }
+  const unit = f.type === "yen" ? "円" : f.unit || "";
+  return `<div class="field"><label for="${id}">${esc(f.label)}${opt}</label>${sub}
+    <div class="inrow"><input type="text" class="num" inputmode="decimal" autocomplete="off" id="${id}" data-q="${q.no}" data-k="${f.key}" placeholder="${f.type === "yen" ? "例：150万" : ""}"><span class="unit">${unit}</span><span class="echo" id="${id}_echo"></span></div></div>`;
+}
+
+function onInput(e) {
+  const t = e.target; if (!t.dataset || !t.dataset.q) return;
+  const q = t.dataset.q, k = t.dataset.k;
+  if (t.type === "radio" && !t.checked) return;
+  (state[q] = state[q] || {})[k] = t.value;
+  if (isSample) { isSample = false; document.getElementById("sample-note").hidden = true; }
+  update(); save();
+}
+
+function fillInputs() {
+  QUESTIONS.forEach(q => q.fields.forEach(f => {
+    const id = `f${q.no}_${f.key}`, val = (state[q.no] || {})[f.key] ?? "";
+    if (f.type === "choice") f.options.forEach((_, i) => { document.getElementById(`${id}_${i}`).checked = String(i) === String(val); });
+    else document.getElementById(id).value = val;
+  }));
+}
+
+function update() {
+  const ev = evaluate(state);
+  QUESTIONS.forEach((q, i) => {
+    const r = ev.results[i];
+    const chip = document.getElementById(`chip${q.no}`), out = document.getElementById(`out${q.no}`);
+    chip.className = "chip" + (r ? ` s${r.score}` : "");
+    chip.textContent = r ? `${r.score}点` : "未回答";
+    out.innerHTML = r ? `<span>出力結果：<b>${r.score}点</b> / 2点</span><span class="why">${esc(r.why)}</span>`
+                      : `<span class="why">必須の質問に答えると自動で採点されます</span>`;
+    q.fields.forEach(f => {
+      if (f.type !== "yen") return;
+      const n = toNum((state[q.no] || {})[f.key]);
+      document.getElementById(`f${q.no}_${f.key}_echo`).textContent = n !== null && n >= 10000 ? `＝ ${yen(n)}` : "";
+    });
+  });
+  // 問8 の固定費プレースホルダに問7の値を表示
+  const f7 = toNum((state[7] || {}).fixed);
+  document.getElementById("f8_bizfixed").placeholder = f7 !== null ? `問7の値 ${yen(f7)} を使用中` : "例：25万";
+
+  document.getElementById("r-total").textContent = ev.total;
+  document.getElementById("bar-total").textContent = `${ev.total} / 24`;
+  document.getElementById("r-meter").style.width = `${ev.total / 24 * 100}%`;
+  const b = ev.band;
+  document.getElementById("r-verdict").className = `verdict ${b.cls}`;
+  document.getElementById("r-verdict").innerHTML = `<h3>${esc(b.name)}</h3><p><strong>${esc(b.sub)}</strong>　${esc(b.text)}</p>`;
+  document.getElementById("r-pending").textContent = ev.unanswered ? `未回答が${ev.unanswered}問あります。未回答は0点として計算した暫定判定です。` : "全12問に回答済みです。";
+
+  document.getElementById("r-grid").innerHTML = QUESTIONS.map((q, i) => {
+    const r = ev.results[i];
+    return `<a class="cell${r ? ` s${r.score}` : ""}" href="#q${q.no}" title="問${q.no} ${esc(q.title)}">問${q.no}<b>${r ? r.score : "–"}</b></a>`;
+  }).join("");
+
+  const items = [
+    ...ev.warnings.map(w => `<li><span class="tag warn">鉄則</span><div><strong>${esc(w.title)}</strong>${esc(w.text)}</div></li>`),
+    ...ev.weak.map(x => `<li><span class="tag s${x.r.score}">問${x.q.no}・${x.r.score}点</span><div><strong>${esc(x.q.title)}</strong>${esc(x.r.why)}<br>→ ${esc(x.q.advice)}</div></li>`),
+  ];
+  document.getElementById("r-weak").innerHTML = items.length ? items.join("")
+    : `<li class="empty">${ev.unanswered === 12 ? "回答すると、0点・1点の項目がここに並びます。" : "0点・1点の項目はありません。"}</li>`;
+  document.getElementById("r-actions").innerHTML = b.actions.map(a => `<li>${esc(a)}</li>`).join("");
+  document.getElementById("export").value = exportText(ev);
+}
+
+function answerText(q, f) {
+  const v = (state[q.no] || {})[f.key];
+  if (!has(v)) return "（未回答）";
+  if (f.type === "choice") return f.options[Number(v)];
+  if (f.type === "yen") { const n = toNum(v); return n === null ? v : `${Math.round(n).toLocaleString("ja-JP")}円`; }
+  if (f.type === "num") return `${v}${f.unit || ""}`;
+  return v;
+}
+function exportText(ev) {
+  const lines = ["【起業適性診断 結果】", ""];
+  QUESTIONS.forEach((q, i) => {
+    lines.push(`問${q.no}　${q.title}`);
+    q.fields.forEach(f => {
+      const v = (state[q.no] || {})[f.key];
+      if (f.optional && !has(v)) return;
+      lines.push(`　ー質問：${f.label}`, `　ー回答：${answerText(q, f)}`);
+    });
+    const r = ev.results[i];
+    lines.push(r ? `　#出力結果：${r.score}点（${r.why}）` : "　#出力結果：未回答", "");
+  });
+  lines.push(`■ 合計：${ev.total} / 24 点${ev.unanswered ? `（未回答${ev.unanswered}問）` : ""}`);
+  lines.push(`■ 総合判定：${ev.band.name}（${ev.band.sub}）`);
+  lines.push("■ 現在の弱点：");
+  if (!ev.weak.length) lines.push("　なし");
+  ev.weak.forEach(x => lines.push(`　・問${x.q.no}（${x.r.score}点）${x.q.title} → ${x.q.advice}`));
+  ev.warnings.forEach(w => lines.push(`　・${w.title}`));
+  return lines.join("\n");
+}
+
+document.getElementById("btn-copy").addEventListener("click", () => {
+  const ta = document.getElementById("export"), msg = document.getElementById("copied");
+  const show = () => { msg.hidden = false; setTimeout(() => { msg.hidden = true; }, 2000); };
+  const fallback = () => { ta.hidden = false; ta.focus(); ta.select(); };
+  try { navigator.clipboard.writeText(ta.value).then(show, fallback); } catch (e) { fallback(); }
+});
+document.getElementById("btn-sample").addEventListener("click", () => {
+  state = JSON.parse(JSON.stringify(SAMPLE)); isSample = true;
+  document.getElementById("sample-note").hidden = false; fillInputs(); update(); save();
+});
+document.getElementById("btn-clear").addEventListener("click", () => {
+  state = {}; isSample = false;
+  document.getElementById("sample-note").hidden = true; fillInputs(); update(); save();
+});
+
+renderQuestions();
+const saved = load();
+if (saved) { state = saved.answers; isSample = !!saved.sample; }
+else { state = JSON.parse(JSON.stringify(SAMPLE)); isSample = true; }
+document.getElementById("sample-note").hidden = !isSample;
+fillInputs(); update();
+</script>
