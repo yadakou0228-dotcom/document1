@@ -12,6 +12,7 @@ YouTubeチャンネルの運用および動画制作を行うチームの運営�
 - [市場分析:企画別](docs/market-analysis.md)
 - [初期構成・投稿プラン](docs/posting-plan.md)
 - [ビットコイン 2030年までの価格推移予測](docs/bitcoin-2030-forecast.md)
+- [ビットコイン 価格推移チャート（2012年〜現在）](docs/bitcoin-price-history.html)
 - テンプレート
   - [企画書テンプレート](docs/templates/video-planning-template.md)
   - [台本テンプレート](docs/templates/script-template.md)

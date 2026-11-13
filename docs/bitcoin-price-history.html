@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ビットコイン価格推移</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:#fcfcfb; --plane:#f9f9f7;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+    --price:#2a78d6; --high:#eb6834; --low:#1baf7a;
+    --fill:rgba(42,120,214,.10); --sel:rgba(42,120,214,.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1:#1a1a19; --plane:#0d0d0d;
+      --text-primary:#fff; --text-secondary:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+      --price:#3987e5; --high:#d95926; --low:#199e70;
+      --fill:rgba(57,135,229,.13); --sel:rgba(57,135,229,.15);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:#1a1a19; --plane:#0d0d0d;
+    --text-primary:#fff; --text-secondary:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --price:#3987e5; --high:#d95926; --low:#199e70;
+    --fill:rgba(57,135,229,.13); --sel:rgba(57,135,229,.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; padding:24px 16px 56px; background:var(--plane); color:var(--text-primary);
+    font-family: system-ui,-apple-system,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif;
+    line-height:1.65; -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
+  }
+  .wrap { max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:28px; }
+  .eyebrow { font-size:11.5px; font-weight:600; letter-spacing:.08em; color:var(--muted); margin:0 0 6px; }
+  h1 { font-size:clamp(21px,5vw,28px); margin:0; letter-spacing:-.02em; font-weight:650; text-wrap:balance; }
+  h2 { font-size:12px; font-weight:650; letter-spacing:.07em; color:var(--muted); margin:0 0 12px; text-transform:uppercase; }
+
+  .hero { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 14px; margin-top:14px; }
+  .hero .big { font-size:clamp(38px,11vw,54px); font-weight:650; letter-spacing:-.03em; line-height:1; }
+  .hero .ch { font-size:15px; font-weight:600; color:var(--text-secondary); }
+  .hero .as { font-size:12.5px; color:var(--muted); width:100%; }
+
+  .stats { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  @media (min-width:680px){ .stats { grid-template-columns:repeat(4,1fr); } }
+  .st { background:var(--surface-1); border:1px solid var(--border); border-radius:12px; padding:13px 14px; }
+  .st .l { font-size:11.5px; color:var(--muted); margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+  .st .l i { width:0;height:0;flex:none; }
+  .st .l i.up { border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid var(--high); }
+  .st .l i.dn { border-left:4px solid transparent;border-right:4px solid transparent;border-top:7px solid var(--low); }
+  .st .v { font-size:19px; font-weight:650; letter-spacing:-.02em; line-height:1.2; }
+  .st .d { font-size:11.5px; color:var(--text-secondary); margin-top:3px; }
+
+  .card { background:var(--surface-1); border:1px solid var(--border); border-radius:14px; padding:14px 12px 10px; }
+  .ranges { display:flex; gap:6px; overflow-x:auto; padding:0 2px 10px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .ranges::-webkit-scrollbar { display:none; }
+  .ranges button {
+    flex:none; min-height:38px; padding:0 15px; border-radius:999px; cursor:pointer;
+    border:1px solid var(--border); background:transparent; color:var(--text-secondary);
+    font:inherit; font-size:13.5px; font-weight:600; -webkit-tap-highlight-color:transparent;
+  }
+  .ranges button[aria-pressed="true"] { background:var(--sel); color:var(--price); border-color:transparent; }
+  .ranges button:focus-visible { outline:2px solid var(--price); outline-offset:2px; }
+
+  .key { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--text-secondary); padding:2px 4px 8px; }
+  .key span { display:flex; align-items:center; gap:6px; }
+  .key i { flex:none; }
+  .key i.ln { width:14px;height:3px;border-radius:2px;background:var(--price); }
+  .key i.up { width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--high); }
+  .key i.dn { width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid var(--low); }
+  .key i.hv { width:1px;height:12px;background:var(--axis);box-shadow:0 0 0 1px var(--axis); }
+
+  .cb { position:relative; width:100%; touch-action:pan-y; }
+  svg { display:block; width:100%; height:auto; overflow:visible; }
+  .tk { font-size:10.5px; fill:var(--muted); font-variant-numeric:tabular-nums; }
+  .evt { font-size:10px; fill:var(--muted); font-weight:600; }
+  .evp { font-size:11px; fill:var(--text-primary); font-weight:650; }
+  .tip {
+    position:absolute; pointer-events:none; opacity:0; transition:opacity .1s; z-index:5;
+    background:var(--surface-1); border:1px solid var(--border); border-radius:10px;
+    padding:8px 11px; font-size:12.5px; box-shadow:0 6px 20px rgba(0,0,0,.14); white-space:nowrap;
+  }
+  .tip b { display:block; font-size:15px; margin-top:2px; font-variant-numeric:tabular-nums; }
+
+  .tw { overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface-1); }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th,td { padding:9px 12px; text-align:right; border-bottom:1px solid var(--grid); white-space:nowrap; }
+  th:first-child,td:first-child { text-align:left; }
+  thead th { font-size:11px; color:var(--muted); font-weight:600; }
+  tbody td { font-variant-numeric:tabular-nums; color:var(--text-secondary); }
+  tbody td:first-child { color:var(--text-primary); font-weight:600; font-variant-numeric:normal; }
+  tbody tr:last-child td { border-bottom:none; }
+  .ev-k { display:inline-flex; align-items:center; gap:6px; }
+  .ev-k i { flex:none; }
+  .ev-k i.up { width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid var(--high); }
+  .ev-k i.dn { width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:7px solid var(--low); }
+  .ev-k i.hv { width:7px;height:7px;background:var(--axis);transform:rotate(45deg); }
+  td.pos { color:#006300; } td.neg { color:#b3261e; }
+  :root[data-theme="dark"] td.pos, :root:not([data-theme="light"]) td.pos { color:#0ca30c; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) td.neg { color:#e66767; } }
+  :root[data-theme="dark"] td.neg { color:#e66767; }
+
+  @media (max-width:560px) {
+    #ev-table thead { display:none; }
+    #ev-table tr { display:grid; grid-template-columns:auto 1fr; gap:3px 10px; padding:11px 13px; border-bottom:1px solid var(--grid); }
+    #ev-table tr:last-child { border-bottom:none; }
+    #ev-table td { border:none; padding:0; white-space:normal; }
+    #ev-table td:nth-child(2) { text-align:right; font-weight:600; color:var(--text-primary); }
+    #ev-table td:nth-child(3) { grid-column:1 / -1; text-align:left; font-size:14px; font-weight:650; color:var(--text-primary); }
+    #ev-table td:nth-child(3) span { font-weight:400; font-size:12px; }
+  }
+  .foot { font-size:11.5px; color:var(--muted); line-height:1.75; }
+  .foot p { margin:0 0 9px; }
+  @media (prefers-reduced-motion: reduce) { .tip { transition:none; } }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">月末終値ベース · 2012年1月 〜 2026年11月13日</p>
+    <h1>ビットコイン価格推移</h1>
+    <div class="hero">
+      <span class="big" id="h-price"></span>
+      <span class="ch" id="h-chg"></span>
+      <span class="as" id="h-as"></span>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <section>
+    <h2>価格チャート</h2>
+    <div class="card">
+      <div class="ranges" id="ranges" role="group" aria-label="表示期間"></div>
+      <div class="key">
+        <span><i class="ln"></i>月末終値</span>
+        <span><i class="up"></i>サイクル最高値</span>
+        <span><i class="dn"></i>サイクル底値</span>
+        <span><i class="hv"></i>半減期</span>
+      </div>
+      <div class="cb" id="cb">
+        <svg id="svg" role="img" aria-label="ビットコインの月末終値の推移と主要イベント"></svg>
+        <div class="tip" id="tip"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>主要イベント一覧（年月日）</h2>
+    <div class="tw">
+      <table id="ev-table">
+        <thead><tr><th>区分</th><th>年月日</th><th>価格 / 内容</th></tr></thead>
+        <tbody id="ev-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>年末終値と年間騰落率</h2>
+    <div class="tw">
+      <table>
+        <thead><tr><th>年</th><th>年末終値</th><th>騰落率</th></tr></thead>
+        <tbody id="yr-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="foot">
+    <p>
+      折れ線は<strong>月末終値</strong>（2026年11月は13日時点）。
+      ▲▼で示した最高値・底値は<strong>日次ベースの実際の高値・安値</strong>のため、折れ線より外側に位置します。
+    </p>
+    <p>
+      日次の高値・安値は取引所やデータ提供元により数%の差があり、日付も時間帯の取り方で前後します。
+      本チャートでは広く引用される値を採用しました。2026年7月1日の安値は現サイクルの暫定値です。
+      半減期はブロック高で定義され、表示日付はUTC基準です（第4回は米国時間では4月19日）。
+    </p>
+    <p>本資料は情報提供を目的としたものであり、投資助言ではありません。</p>
+  </div>
+</div>
+
+<script>
+const D = {"labels": ["2012-01", "2012-02", "2012-03", "2012-04", "2012-05", "2012-06", "2012-07", "2012-08", "2012-09", "2012-10", "2012-11", "2012-12", "2013-01", "2013-02", "2013-03", "2013-04", "2013-05", "2013-06", "2013-07", "2013-08", "2013-09", "2013-10", "2013-11", "2013-12", "2014-01", "2014-02", "2014-03", "2014-04", "2014-05", "2014-06", "2014-07", "2014-08", "2014-09", "2014-10", "2014-11", "2014-12", "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06", "2015-07", "2015-08", "2015-09", "2015-10", "2015-11", "2015-12", "2016-01", "2016-02", "2016-03", "2016-04", "2016-05", "2016-06", "2016-07", "2016-08", "2016-09", "2016-10", "2016-11", "2016-12", "2017-01", "2017-02", "2017-03", "2017-04", "2017-05", "2017-06", "2017-07", "2017-08", "2017-09", "2017-10", "2017-11", "2017-12", "2018-01", "2018-02", "2018-03", "2018-04", "2018-05", "2018-06", "2018-07", "2018-08", "2018-09", "2018-10", "2018-11", "2018-12", "2019-01", "2019-02", "2019-03", "2019-04", "2019-05", "2019-06", "2019-07", "2019-08", "2019-09", "2019-10", "2019-11", "2019-12", "2020-01", "2020-02", "2020-03", "2020-04", "2020-05", "2020-06", "2020-07", "2020-08", "2020-09", "2020-10", "2020-11", "2020-12", "2021-01", "2021-02", "2021-03", "2021-04", "2021-05", "2021-06", "2021-07", "2021-08", "2021-09", "2021-10", "2021-11", "2021-12", "2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12", "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10", "2026-11"], "values": [5.5, 4.9, 4.9, 5.0, 5.2, 6.7, 9.4, 10.3, 12.4, 11.0, 12.4, 13.45, 20.4, 33.4, 93, 139, 128.8, 97.5, 103, 135.5, 134, 204, 1150, 754, 823, 568, 455, 445, 629, 641, 589, 478, 387, 338, 378, 320, 218, 254, 244, 236, 230, 263, 285, 230, 236, 314, 377, 430, 369, 437, 416, 448, 531, 673, 624, 575, 609, 700, 745, 963, 970, 1190, 1080, 1350, 2300, 2480, 2875, 4735, 4335, 6470, 10210, 14156, 10240, 10400, 6930, 9240, 7500, 6400, 7780, 7040, 6630, 6320, 4040, 3742, 3450, 3815, 4100, 5320, 8560, 10820, 10080, 9600, 8300, 9200, 7570, 7193, 9350, 8600, 6438, 8650, 9450, 9140, 11330, 11650, 10780, 13800, 19700, 29001, 33100, 45200, 58800, 57800, 37300, 35050, 41500, 47100, 43800, 61300, 57000, 46306, 38500, 43200, 45540, 37650, 31800, 19940, 23300, 20050, 19430, 20490, 17168, 16547, 23140, 23150, 28470, 29250, 27220, 30480, 29230, 25930, 26970, 34670, 37720, 42265, 42600, 61200, 71300, 60600, 67500, 62700, 64600, 59000, 63300, 70200, 96400, 93400, 102400, 84400, 82500, 94200, 104600, 107200, 115800, 108900, 114000, 110000, 91000, 88400, 93000, 66000, 71000, 76000, 72000, 58500, 64000, 77000, 83500, 77400, 71300], "halvings": [{"i": 10, "t": "2012/11"}, {"i": 54, "t": "2016/7"}, {"i": 100, "t": "2020/5"}, {"i": 147, "t": "2024/4"}], "ath": {"v": 126198, "label": "2025-10", "date": "2025\u5e7410\u67086\u65e5"}, "asOf": "2026\u5e7411\u670813\u65e5", "events": [{"k": "halving", "d": "2012-11-28", "p": 12.4, "t": "\u7b2c1\u56de \u534a\u6e1b\u671f", "s": "50 \u2192 25 BTC", "blk": "210,000", "x": 10.9, "jp": "2012\u5e7411\u670828\u65e5"}, {"k": "halving", "d": "2016-07-09", "p": 650, "t": "\u7b2c2\u56de \u534a\u6e1b\u671f", "s": "25 \u2192 12.5 BTC", "blk": "420,000", "x": 54.258, "jp": "2016\u5e747\u67089\u65e5"}, {"k": "halving", "d": "2020-05-11", "p": 8800, "t": "\u7b2c3\u56de \u534a\u6e1b\u671f", "s": "12.5 \u2192 6.25 BTC", "blk": "630,000", "x": 100.323, "jp": "2020\u5e745\u670811\u65e5"}, {"k": "halving", "d": "2024-04-20", "p": 64000, "t": "\u7b2c4\u56de \u534a\u6e1b\u671f", "s": "6.25 \u2192 3.125 BTC", "blk": "840,000", "x": 147.633, "jp": "2024\u5e744\u670820\u65e5"}, {"k": "high", "d": "2013-11-29", "p": 1130, "t": "\u7b2c1\u30b5\u30a4\u30af\u30eb \u5929\u4e95", "s": "\u7d04 $1,130", "x": 22.933, "jp": "2013\u5e7411\u670829\u65e5"}, {"k": "high", "d": "2017-12-17", "p": 19783, "t": "\u7b2c2\u30b5\u30a4\u30af\u30eb \u5929\u4e95", "s": "$19,783", "x": 71.516, "jp": "2017\u5e7412\u670817\u65e5"}, {"k": "high", "d": "2021-11-10", "p": 69000, "t": "\u7b2c3\u30b5\u30a4\u30af\u30eb \u5929\u4e95", "s": "$69,000", "x": 118.3, "jp": "2021\u5e7411\u670810\u65e5"}, {"k": "high", "d": "2025-10-06", "p": 126198, "t": "\u53f2\u4e0a\u6700\u9ad8\u5024", "s": "$126,198", "x": 165.161, "jp": "2025\u5e7410\u67086\u65e5"}, {"k": "low", "d": "2015-01-14", "p": 172, "t": "\u7b2c1\u30b5\u30a4\u30af\u30eb \u5927\u5e95", "s": "\u7d04 $172", "x": 36.419, "jp": "2015\u5e741\u670814\u65e5"}, {"k": "low", "d": "2018-12-15", "p": 3200, "t": "\u7b2c2\u30b5\u30a4\u30af\u30eb \u5927\u5e95", "s": "\u7d04 $3,200", "x": 83.452, "jp": "2018\u5e7412\u670815\u65e5"}, {"k": "low", "d": "2022-11-21", "p": 15480, "t": "\u7b2c3\u30b5\u30a4\u30af\u30eb \u5927\u5e95", "s": "\u7d04 $15,480", "x": 130.667, "jp": "2022\u5e7411\u670821\u65e5"}, {"k": "low", "d": "2026-07-01", "p": 57800, "t": "\u73fe\u30b5\u30a4\u30af\u30eb\u5b89\u5024", "s": "\u7d04 $57,800\uff08\u66ab\u5b9a\uff09", "x": 174.0, "jp": "2026\u5e747\u67081\u65e5"}], "nextHalving": {"jp": "2028\u5e744\u670820\u65e5\u9803", "blk": "1,050,000", "s": "3.125 \u2192 1.5625 BTC"}, "yearly": [{"y": 2012, "c": 13.45}, {"y": 2013, "c": 754}, {"y": 2014, "c": 320}, {"y": 2015, "c": 430}, {"y": 2016, "c": 963}, {"y": 2017, "c": 14156}, {"y": 2018, "c": 3742}, {"y": 2019, "c": 7193}, {"y": 2020, "c": 29001}, {"y": 2021, "c": 46306}, {"y": 2022, "c": 16547}, {"y": 2023, "c": 42265}, {"y": 2024, "c": 93400}, {"y": 2025, "c": 88400}, {"y": 2026, "c": 71300}]};
+const F = n => "$" + Math.round(n).toLocaleString("en-US");
+const Fc = n => n >= 1000 ? "$" + (n/1000 >= 100 ? Math.round(n/1000) : (n/1000).toFixed(n<10000?1:0)) + "K" : "$" + (n < 10 ? n.toFixed(2) : Math.round(n));
+const pct = v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%";
+const jpm = s => { const [y,m] = s.split("-"); return y + "年" + (+m) + "月"; };
+const N = D.values.length, cur = D.values[N-1];
+
+/* hero + stats */
+const prevYrClose = D.yearly[D.yearly.length-2].c;
+document.getElementById("h-price").textContent = F(cur);
+document.getElementById("h-chg").textContent = "年初来 " + pct((cur/prevYrClose-1)*100);
+document.getElementById("h-as").textContent = D.asOf + " 時点 · 月末終値ベース";
+
+const ev = D.events, athE = ev.find(e => e.t === "史上最高値"), lowE = ev[ev.length-1];
+const days = Math.round((new Date(2028,3,20) - new Date(2026,10,13)) / 864e5);
+document.getElementById("stats").innerHTML = [
+  ['<i class="up"></i>史上最高値', F(athE.p), athE.jp + " · 現在 " + pct((cur/athE.p-1)*100)],
+  ['<i class="dn"></i>現サイクル安値', "約 " + F(lowE.p), lowE.jp + " · 21か月ぶり安値"],
+  ['直近の半減期', "2024年4月20日", "6.25 → 3.125 BTC"],
+  ['次回の半減期', "2028年4月頃", "あと約 " + Math.round(days/30.44) + "か月（" + days.toLocaleString() + "日）"],
+].map(([l,v,d]) => `<div class="st"><div class="l">${l}${l.startsWith("<")?"":""}</div><div class="v">${v}</div><div class="d">${d}</div></div>`)
+ .join("").replace(/<div class="l">(<i[^>]*><\/i>)?/g, (m,i) => `<div class="l">${i||""}`);
+
+/* event table */
+const KN = { high:['up','最高値'], low:['dn','底値'], halving:['hv','半減期'] };
+document.getElementById("ev-body").innerHTML = ev.slice().sort((a,b)=>a.x-b.x).map(e => {
+  const [c,n] = KN[e.k];
+  const extra = e.k === "halving" ? `${e.s}<span style="color:var(--muted)"> · ブロック ${e.blk}</span>` : e.s;
+  return `<tr><td><span class="ev-k"><i class="${c}"></i>${n}</span></td><td>${e.jp}</td><td>${extra}</td></tr>`;
+}).join("") + `<tr><td><span class="ev-k"><i class="hv"></i>半減期</span></td><td style="color:var(--muted)">${D.nextHalving.jp}（予定）</td><td style="color:var(--muted)">${D.nextHalving.s} · ブロック ${D.nextHalving.blk}</td></tr>`;
+
+/* yearly table */
+document.getElementById("yr-body").innerHTML = D.yearly.map((r,i) => {
+  const p = i ? (r.c/D.yearly[i-1].c-1)*100 : null;
+  const lbl = r.y === 2026 ? "2026年<span style='color:var(--muted);font-weight:400'>（11/13）</span>" : r.y + "年";
+  return `<tr><td>${lbl}</td><td>${F(r.c)}</td><td class="${p==null?'':p>=0?'pos':'neg'}">${p==null?'—':pct(p)}</td></tr>`;
+}).join("");
+
+/* ranges */
+const RANGES = [["全期間",N],["10年",120],["5年",60],["2年",24],["1年",12]];
+let cutoff = N;
+const rb = document.getElementById("ranges");
+rb.innerHTML = RANGES.map(([l,n],i) => `<button type="button" data-n="${n}" aria-pressed="${i===0}">${l}</button>`).join("");
+rb.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  cutoff = +b.dataset.n;
+  [...rb.children].forEach(x => x.setAttribute("aria-pressed", x === b));
+  draw();
+});
+
+/* chart */
+const svg = document.getElementById("svg"), tip = document.getElementById("tip"), cb = document.getElementById("cb");
+const NS = "http://www.w3.org/2000/svg";
+let G = null;
+const el = (t,a) => { const n = document.createElementNS(NS,t); for (const k in a) n.setAttribute(k,a[k]); return n; };
+
+function niceTicks(lo, hi, log) {
+  if (log) {
+    const out = [];
+    for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++)
+      for (const m of [1,2,5]) { const v = m*10**e; if (v >= lo && v <= hi) out.push(v); }
+    return out.length > 7 ? out.filter(v => /^1e|^10*$/.test(String(v)) || String(v)[0] === "1") : out;
+  }
+  const step = 10**Math.floor(Math.log10((hi-lo)/4)) * [1,2,2.5,5,10].find(s => (hi-lo)/(10**Math.floor(Math.log10((hi-lo)/4))*s) <= 5);
+  const out = []; for (let v = Math.ceil(lo/step)*step; v <= hi; v += step) out.push(v);
+  return out;
+}
+
+function draw() {
+  const W = Math.max(cb.clientWidth, 280), narrow = W < 620;
+  const H = narrow ? 300 : 420;
+  const M = { t:26, r:narrow?12:16, b:30, l:narrow?44:54 };
+  const pw = W-M.l-M.r, ph = H-M.t-M.b;
+  const i0 = Math.max(0, N - cutoff), n = N - i0;
+  const vis = D.values.slice(i0);
+  let lo = Math.min(...vis), hi = Math.max(...vis);
+  const evVis = ev.filter(e => e.x >= i0);
+  evVis.forEach(e => { lo = Math.min(lo, e.p); hi = Math.max(hi, e.p); });
+  const log = hi/lo > 4;
+  if (log) { lo /= 1.6; hi *= 2.2; } else { const pad = (hi-lo)*0.14; lo -= pad; hi += pad; lo = Math.max(lo, 0); }
+
+  const X = i => M.l + ((i - i0)/(n-1)) * pw;
+  const Y = log
+    ? v => M.t + ph - (Math.log(v/lo)/Math.log(hi/lo)) * ph
+    : v => M.t + ph - ((v-lo)/(hi-lo)) * ph;
+  G = { X, Y, M, pw, ph, i0, n, W, log };
+
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  svg.textContent = "";
+  const g = el("g", {});
+
+  niceTicks(lo, hi, log).forEach(v => {
+    g.appendChild(el("line", { x1:M.l, x2:M.l+pw, y1:Y(v), y2:Y(v), stroke:"var(--grid)", "stroke-width":1 }));
+    const t = el("text", { x:M.l-8, y:Y(v)+3.5, "text-anchor":"end", class:"tk" });
+    t.textContent = Fc(v); g.appendChild(t);
+  });
+  g.appendChild(el("line", { x1:M.l, x2:M.l+pw, y1:M.t+ph, y2:M.t+ph, stroke:"var(--axis)", "stroke-width":1 }));
+
+  // x ticks
+  const span = n/12, stepY = span > 12 ? 3 : span > 6 ? 2 : 1;
+  let lastX = -1e9;
+  D.labels.forEach((l,i) => {
+    if (i < i0) return;
+    const [y,m] = l.split("-");
+    const show = n <= 15 ? (+m-1) % 3 === 0 : n <= 30 ? m === "01" || m === "07" : (m === "01" && (+y) % stepY === 0);
+    if (!show || X(i) - lastX < (narrow ? 40 : 52)) return;
+    lastX = X(i);
+    const t = el("text", { x:X(i), y:M.t+ph+17, "text-anchor":"middle", class:"tk" });
+    t.textContent = n <= 30 ? (m === "01" ? y : +m + "月") : y;
+    g.appendChild(t);
+  });
+
+  // halving verticals (labels placed after the price labels, avoiding them)
+  const boxes = [];
+  const hits = b => boxes.some(o => b.x1 < o.x2 && b.x2 > o.x1 && b.y1 < o.y2 && b.y2 > o.y1);
+  evVis.filter(e => e.k === "halving").forEach(e =>
+    g.appendChild(el("line", { x1:X(e.x), x2:X(e.x), y1:M.t-4, y2:M.t+ph, stroke:"var(--axis)", "stroke-width":1 })));
+
+  // area + line
+  let d = "", a = "";
+  for (let i = i0; i < N; i++) { const c = (i === i0 ? "M" : "L") + X(i).toFixed(1) + " " + Y(D.values[i]).toFixed(1) + " "; d += c; a += c; }
+  a += `L${X(N-1).toFixed(1)} ${M.t+ph} L${X(i0).toFixed(1)} ${M.t+ph} Z`;
+  g.appendChild(el("path", { d:a, fill:"var(--fill)" }));
+  g.appendChild(el("path", { d, fill:"none", stroke:"var(--price)", "stroke-width":2, "stroke-linejoin":"round", "stroke-linecap":"round" }));
+
+  // high / low markers
+  evVis.filter(e => e.k !== "halving").forEach(e => {
+    const x = X(e.x), y = Y(e.p), up = e.k === "high", c = up ? "var(--high)" : "var(--low)", s = 6;
+    const tri = up ? `${x},${y-s-3} ${x-s},${y+2-3} ${x+s},${y+2-3}` : `${x},${y+s+3} ${x-s},${y-2+3} ${x+s},${y-2+3}`;
+    g.appendChild(el("polygon", { points:tri, fill:c, stroke:"var(--surface-1)", "stroke-width":2, "stroke-linejoin":"round" }));
+    if (narrow) return;
+    const ty = up ? y-s-10 : y+s+18;
+    const anchor = x > M.l+pw-72 ? "end" : x < M.l+72 ? "start" : "middle";
+    const t1 = el("text", { x, y:ty, "text-anchor":anchor, class:"evp" });
+    t1.textContent = (e.p >= 1000 ? Fc(e.p) : "$" + e.p);
+    const t2 = el("text", { x, y:ty + (up ? -13 : 13), "text-anchor":anchor, class:"evt" });
+    t2.textContent = e.jp;
+    g.appendChild(t1); g.appendChild(t2);
+    const w = 58, dx = anchor === "end" ? -w*2 : anchor === "start" ? 0 : -w;
+    boxes.push({ x1:x+dx, x2:x+dx+w*2, y1:Math.min(ty,ty+(up?-13:13))-11, y2:Math.max(ty,ty+(up?-13:13))+4 });
+  });
+
+  // halving labels: top by default, bottom if blocked, skipped if both are taken
+  evVis.filter(e => e.k === "halving").forEach(e => {
+    const x = X(e.x);
+    const txt = narrow ? "半減期" : "半減期 " + e.jp.replace("年","/").replace("月","/").replace("日","");
+    const w = narrow ? 34 : 88;
+    for (const y of [M.t-9, M.t+ph-7]) {
+      const b = { x1:x+2, x2:x+2+w, y1:y-10, y2:y+3 };
+      if (hits(b)) continue;
+      const tt = el("text", { x:x+4, y, class:"evt" });
+      tt.textContent = txt; g.appendChild(tt); boxes.push(b); break;
+    }
+  });
+
+  // endpoint
+  g.appendChild(el("circle", { cx:X(N-1), cy:Y(cur), r:4.5, fill:"var(--price)", stroke:"var(--surface-1)", "stroke-width":2 }));
+
+  const hov = el("g", { id:"hov", opacity:0, "pointer-events":"none" });
+  hov.appendChild(el("line", { id:"cr", y1:M.t, y2:M.t+ph, stroke:"var(--axis)", "stroke-width":1 }));
+  hov.appendChild(el("circle", { id:"hd", r:5, fill:"var(--price)", stroke:"var(--surface-1)", "stroke-width":2 }));
+  g.appendChild(hov);
+  const hit = el("rect", { x:M.l, y:M.t-10, width:pw, height:ph+10, fill:"transparent" });
+  g.appendChild(hit); svg.appendChild(g);
+  hit.addEventListener("pointermove", move);
+  hit.addEventListener("pointerdown", move);
+  hit.addEventListener("pointerleave", leave);
+  hit.addEventListener("pointerup", leave);
+}
+
+function move(e) {
+  if (!G) return;
+  const r = svg.getBoundingClientRect(), sc = G.W / r.width;
+  let i = Math.round(G.i0 + (((e.clientX - r.left) * sc - G.M.l) / G.pw) * (G.n - 1));
+  i = Math.max(G.i0, Math.min(N-1, i));
+  const v = D.values[i];
+  svg.querySelector("#hov").setAttribute("opacity", 1);
+  svg.querySelector("#cr").setAttribute("x1", G.X(i));
+  svg.querySelector("#cr").setAttribute("x2", G.X(i));
+  svg.querySelector("#hd").setAttribute("cx", G.X(i));
+  svg.querySelector("#hd").setAttribute("cy", G.Y(v));
+  tip.innerHTML = `${jpm(D.labels[i])}${i===N-1?"（13日時点）":" 末"}<b>${F(v)}</b>`;
+  tip.style.opacity = 1;
+  const tw = tip.offsetWidth, cx = G.X(i)/sc;
+  tip.style.left = Math.max(2, Math.min(r.width-tw-2, cx-tw/2)) + "px";
+  tip.style.top = "0px";
+}
+function leave() { tip.style.opacity = 0; const h = svg.querySelector("#hov"); if (h) h.setAttribute("opacity", 0); }
+
+draw();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(draw, 120); });
+</script>
+</body>
+</html>
