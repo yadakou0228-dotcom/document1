@@ -1,0 +1,1559 @@
+<title>Python基礎 30日プラン</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@700;800&family=BIZ+UDPGothic:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: 1カラムの学習ノート。ホーム=診断結果・今日の課題・12単元の進捗グリッド／単元=要点→小テスト／模擬試験=タイマー付き40問 */
+:root {
+  --bg: #f2f4f8;
+  --surface: #ffffff;
+  --sunk: #e9edf4;
+  --ink: #172031;
+  --muted: #586378;
+  --line: #d3d9e4;
+  --accent: #2753c4;
+  --accent-ink: #ffffff;
+  --accent-soft: #e0e8fb;
+  --marker: #f4cf52;
+  --marker-soft: #fcf1cc;
+  --good: #20804d;  --good-soft: #dff2e6;
+  --bad: #bf3a2c;   --bad-soft: #f9e2df;
+  --warn: #9c6300;  --warn-soft: #f8ecd4;
+  --code-bg: #1a2131;
+  --code-ink: #e5eaf4;
+  --code-dim: #8d99b0;
+  --font-display: "M PLUS 1", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e131b; --surface: #161d28; --sunk: #111721; --ink: #e3e8f1; --muted: #95a1b5; --line: #283244;
+    --accent: #7c9fff; --accent-ink: #0e131b; --accent-soft: #1b2847;
+    --marker: #e2b93e; --marker-soft: #322a12;
+    --good: #5dc98b; --good-soft: #16301f; --bad: #ef7d70; --bad-soft: #3a1f1c; --warn: #e3aa4c; --warn-soft: #33270f;
+    --code-bg: #0a0e15; --code-ink: #e5eaf4; --code-dim: #7d889c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e131b; --surface: #161d28; --sunk: #111721; --ink: #e3e8f1; --muted: #95a1b5; --line: #283244;
+  --accent: #7c9fff; --accent-ink: #0e131b; --accent-soft: #1b2847;
+  --marker: #e2b93e; --marker-soft: #322a12;
+  --good: #5dc98b; --good-soft: #16301f; --bad: #ef7d70; --bad-soft: #3a1f1c; --warn: #e3aa4c; --warn-soft: #33270f;
+  --code-bg: #0a0e15; --code-ink: #e5eaf4; --code-dim: #7d889c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.75;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 28px; }
+a { color: var(--accent); }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 18px 0; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand .mark { font-family: var(--font-code); font-weight: 700; font-size: 13px; background: var(--code-bg); color: var(--marker); padding: 3px 8px; border-radius: 6px; }
+.brand b { font-family: var(--font-display); font-weight: 800; font-size: 17px; }
+.sync { font-size: 12px; color: var(--muted); }
+
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.35; }
+h1 { font-size: clamp(26px, 4.6vw, 36px); font-weight: 800; }
+h2 { font-size: 21px; font-weight: 800; }
+h3 { font-size: 17px; font-weight: 700; }
+.eyebrow { font-size: 12px; letter-spacing: .1em; font-weight: 700; color: var(--accent); }
+.lead { color: var(--muted); margin: 6px 0 0; max-width: 62ch; }
+.hl { background: linear-gradient(transparent 58%, var(--marker-soft) 58%); font-weight: 700; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+.stack { display: grid; gap: 14px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost { background: transparent; }
+.btn.small { padding: 5px 10px; font-size: 13px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+/* exam facts strip */
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.facts div { padding: 12px 14px; border-left: 1px solid var(--line); }
+.facts div:first-child { border-left: 0; }
+.facts dt { font-size: 12px; color: var(--muted); }
+.facts dd { margin: 0; font-family: var(--font-code); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
+.facts dd small { font-family: var(--font-body); font-size: 12px; font-weight: 400; color: var(--muted); }
+@media (max-width: 560px) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .facts div:nth-child(3) { border-left: 0; } .facts div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+
+/* steps */
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.step { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); display: grid; gap: 2px; }
+.step .n { font-family: var(--font-code); font-size: 12px; color: var(--muted); }
+.step b { font-size: 14px; }
+.step span { font-size: 12px; color: var(--muted); }
+.step.done { border-color: var(--good); background: var(--good-soft); }
+.step.now { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+@media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+
+/* today */
+.today { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
+.daybig { font-family: var(--font-code); text-align: center; background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 10px 16px; min-width: 92px; }
+.daybig small { display: block; font-size: 11px; color: var(--code-dim); letter-spacing: .08em; }
+.daybig b { font-size: 34px; line-height: 1.1; color: var(--marker); font-variant-numeric: tabular-nums; }
+.daybig span { font-size: 12px; color: var(--code-dim); }
+.today p { margin: 0; }
+.bar { height: 10px; background: var(--sunk); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.meta { font-size: 13px; color: var(--muted); }
+.meta b { color: var(--ink); font-family: var(--font-code); font-variant-numeric: tabular-nums; }
+input[type=date] { font: inherit; font-size: 13px; color: var(--ink); background: var(--sunk); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; }
+
+/* level */
+.level { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 18px; }
+@media (max-width: 640px) { .level, .today { grid-template-columns: 1fr; } .daybig { justify-self: start; } }
+.lv-badge { display: inline-block; font-family: var(--font-display); font-weight: 800; font-size: 13px; padding: 2px 10px; border-radius: 99px; background: var(--marker); color: #2a2205; }
+.lv-score { font-family: var(--font-code); font-size: 44px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.lv-score small { font-size: 16px; color: var(--muted); }
+.minibars { display: grid; gap: 4px; font-size: 12px; }
+.minibars div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr) 2.6em; gap: 8px; align-items: center; }
+.minibars em { font-style: normal; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.minibars .bar { height: 7px; }
+.minibars .bar i.ok { background: var(--good); }
+.minibars .bar i.ng { background: var(--bad); }
+.minibars code { font-family: var(--font-code); text-align: right; font-size: 12px; }
+
+/* unit grid */
+.units { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.ucard { display: grid; gap: 6px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); position: relative; }
+.ucard:hover { border-color: var(--accent); }
+.ucard .head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.ucard .no { font-family: var(--font-code); font-size: 12px; color: var(--muted); }
+.ucard b { font-size: 15px; line-height: 1.45; }
+.ucard .sub { font-size: 12px; color: var(--muted); }
+.chip { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; white-space: nowrap; border: 1px solid transparent; }
+.chip.todo { background: var(--sunk); color: var(--muted); }
+.chip.prog { background: var(--warn-soft); color: var(--warn); }
+.chip.pass { background: var(--good-soft); color: var(--good); }
+.chip.skip { background: var(--accent-soft); color: var(--accent); }
+.chip.fail { background: var(--bad-soft); color: var(--bad); }
+.ucard.is-pass { border-color: color-mix(in srgb, var(--good) 45%, var(--line)); }
+.ucard.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
+
+table.hist { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.hist th, table.hist td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+table.hist th { font-size: 12px; color: var(--muted); font-weight: 400; }
+table.hist td.num { font-family: var(--font-code); font-variant-numeric: tabular-nums; }
+
+/* lesson */
+.lesson-head { display: grid; gap: 6px; }
+.crumbs { font-size: 13px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+.points { display: grid; gap: 14px; counter-reset: pt; }
+.point { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; min-width: 0; }
+.point h3 { font-size: 16px; }
+.point p { margin: 0; }
+.point ul { margin: 0; padding-left: 1.2em; }
+.trap { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--line)); border-radius: 8px; padding: 8px 12px; font-size: 14px; }
+.trap b { color: var(--warn); }
+pre { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-family: var(--font-code); font-size: 13.5px; line-height: 1.6; tab-size: 4; }
+pre .c { color: var(--code-dim); }
+pre .p { color: var(--marker); }
+code.i { font-family: var(--font-code); font-size: .92em; background: var(--sunk); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; white-space: nowrap; }
+
+/* quiz */
+.quiz { display: grid; gap: 14px; }
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 10px; min-width: 0; }
+.q .qh { display: flex; gap: 10px; align-items: baseline; }
+.q .qn { font-family: var(--font-code); font-weight: 700; color: var(--accent); font-size: 14px; white-space: nowrap; }
+.q .qt { font-weight: 700; margin: 0; }
+.opts { display: grid; gap: 6px; }
+.opt { display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--sunk); cursor: pointer; min-width: 0; }
+.opt:hover { border-color: var(--accent); }
+.opt input { margin-top: 6px; accent-color: var(--accent); flex: none; }
+.opt span { min-width: 0; overflow-wrap: anywhere; }
+.opt code { font-family: var(--font-code); font-size: 13.5px; white-space: pre-wrap; }
+.opt.idk span { color: var(--muted); }
+.opt.sel { border-color: var(--accent); background: var(--accent-soft); }
+.q.graded .opt { cursor: default; }
+.q.graded .opt.right { border-color: var(--good); background: var(--good-soft); }
+.q.graded .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.q.graded.ok { border-color: color-mix(in srgb, var(--good) 50%, var(--line)); }
+.q.graded.ng { border-color: color-mix(in srgb, var(--bad) 50%, var(--line)); }
+.verdict-tag { font-size: 12px; font-weight: 700; margin-left: auto; white-space: nowrap; }
+.verdict-tag.ok { color: var(--good); }
+.verdict-tag.ng { color: var(--bad); }
+.exp { font-size: 14px; border-top: 1px dashed var(--line); padding-top: 8px; color: var(--ink); }
+.exp b { color: var(--accent); }
+.submitbar { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--line); padding-block: 12px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; z-index: 5; }
+.result { border-radius: 12px; padding: 18px 20px; display: grid; gap: 8px; border: 1px solid var(--line); }
+.result.pass { background: var(--good-soft); border-color: var(--good); }
+.result.fail { background: var(--bad-soft); border-color: var(--bad); }
+.result .big { font-family: var(--font-code); font-size: 40px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.result .big small { font-size: 16px; color: var(--muted); }
+.result p { margin: 0; }
+.timer { font-family: var(--font-code); font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; }
+.timer.low { color: var(--bad); }
+.notice { font-size: 13px; color: var(--muted); }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+footer { font-size: 12px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .bar i { transition: width .4s ease; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#"><span class="mark">&gt;&gt;&gt;</span><b>Python基礎 30日プラン</b></a>
+    <span class="sync" id="sync">進捗はこのブラウザに保存されます</span>
+  </header>
+  <main id="app" class="wrap" aria-live="polite"></main>
+  <footer>出題範囲は公式教材「Pythonチュートリアル」に準拠。章ごとの出題数は目安です。最新の試験要項は Python技術者試験の公式サイトで確認してください。</footer>
+</div>
+
+<script>
+/* ============================================================
+   データ：単元・レッスン・問題
+   Q(問題文, コード|null, 選択肢[], 正解index, 解説)
+   ============================================================ */
+const Q = (q, code, c, a, e) => ({ q, code, c, a, e });
+
+const UNITS = [
+{ id: 1, title: "Pythonの特徴とインタープリタ", ch: "1・2章", days: [1], weight: "2問前後",
+  intro: "試験の最初に出る、知識問題中心の単元です。覚えれば確実に取れる得点源にしましょう。",
+  points: [
+    { h: "Pythonの特徴", body: "<ul><li>インタープリタ型。<span class='hl'>コンパイルとリンクが不要</span>で、書いてすぐ試せる。</li><li>文のまとまり（ブロック）は<span class='hl'>インデント</span>で表す。<code class='i'>{}</code> は使わない。</li><li>変数や引数の<span class='hl'>型宣言は不要</span>。</li><li>C言語などで書いた関数やモジュールを組み込める（拡張可能）。</li><li>名前の由来はBBCのコメディ番組「Monty Python's Flying Circus」。ヘビではない。</li></ul>" },
+    { h: "インタープリタの起動と終了", body: "<p>ターミナルで <code class='i'>python3</code> と入力すると対話モードが始まります。終了は Unix で <code class='i'>Ctrl-D</code>、Windows で <code class='i'>Ctrl-Z</code> → Enter、またはどちらでも <code class='i'>quit()</code>。</p>",
+      code: String.raw`$ python3
+>>> print("こんにちは")   # >>> は一次プロンプト
+こんにちは
+>>> for i in range(2):   # 続きの行は ... (二次プロンプト)
+...     print(i)
+...
+0
+1`},
+    { h: "コマンドラインオプション", body: "<ul><li><code class='i'>python3 -c \"コマンド\"</code> … 文字列のコマンドを実行</li><li><code class='i'>python3 -m モジュール名</code> … モジュールをスクリプトとして実行</li><li><code class='i'>python3 -i script.py</code> … スクリプト実行後に対話モードに入る</li></ul>" },
+    { h: "sys.argv（引数）", body: "<p>スクリプトに渡した引数は <code class='i'>sys</code> モジュールの <code class='i'>argv</code>（文字列のリスト）に入ります。</p>",
+      code: String.raw`$ python3 hello.py a b    → sys.argv == ['hello.py', 'a', 'b']
+$ python3 -c "..."        → sys.argv[0] == '-c'
+$ python3 -m mod          → sys.argv[0] はモジュールのフルパス
+$ python3 (スクリプトなし) → sys.argv[0] == ''`},
+    { h: "ソースコードのエンコーディング", body: "<p>デフォルトは <span class='hl'>UTF-8</span>。変える場合は特殊コメントを<span class='hl'>1行目</span>に書きます。1行目がシェバン（<code class='i'>#!</code>）なら<span class='hl'>2行目</span>に書きます。</p>",
+      code: String.raw`#!/usr/bin/env python3
+# -*- coding: cp1252 -*-`},
+  ],
+  quiz: [
+    Q("Pythonの特徴として誤っているものはどれ？", null, ["変数や関数の引数は、使う前に型を宣言する必要がある", "文のグループ化はインデントで行う", "コンパイルとリンクの工程が不要である", "C言語などで書いた関数を組み込んで拡張できる"], 0, "Pythonは動的型付けで、<b>型宣言は不要</b>です。他の3つはチュートリアル1章に書かれている特徴そのものです。"),
+    Q("次のコマンドを実行したときの出力はどれ？", String.raw`$ python3 -c "import sys; print(sys.argv[0])"`, ["-c", "（空文字列）", "python3", "import sys"], 0, "<code class='i'>-c</code> でコマンドを実行した場合、<b>sys.argv[0] は '-c'</b> になります。スクリプト名なしで起動したときは空文字列です。"),
+    Q("スクリプトを実行した後、そのまま対話モードに入るオプションはどれ？", null, ["-i", "-c", "-m", "-v"], 0, "<b>-i</b> は interactive の i。スクリプト実行後に変数の中身などを対話的に確認できます。"),
+    Q("Pythonのソースファイルのデフォルトの文字エンコーディングはどれ？", null, ["UTF-8", "Shift_JIS", "ASCII", "Latin-1"], 0, "Python 3 のソースコードのデフォルトは <b>UTF-8</b> です。"),
+    Q("対話モードで、複数行にまたがる文の続きを入力するときに表示される二次プロンプトはどれ？", null, ["...", ">>>", "$", ">>"], 0, "一次プロンプトは <b>>>></b>、継続行の二次プロンプトは <b>...</b> です。"),
+    Q("モジュールをスクリプトとして実行するコマンドはどれ？", null, ["python3 -m モジュール名", "python3 -c モジュール名", "python3 -i モジュール名", "python3 --module=モジュール名"], 0, "<b>-m</b> は module の m。例: <code class='i'>python3 -m venv env</code>。"),
+    Q("「Python」という名前の由来はどれ？", null, ["BBCのコメディ番組「Monty Python's Flying Circus」", "爬虫類のニシキヘビ", "開発者の飼っていたペットの名前", "ギリシャ神話に登場する大蛇ピュートーン"], 0, "チュートリアル1章に<b>モンティ・パイソン</b>由来と明記されています。ヘビは誤り。"),
+    Q("エンコーディング宣言（# -*- coding: ... -*-）を書ける位置として正しいものはどれ？", null, ["ファイルの1行目。1行目がシェバン行なら2行目", "ファイルのどこでもよい", "ファイルの最終行", "import文の直後"], 0, "エンコーディング宣言は<b>先頭行</b>。Unixのシェバン行（#!）がある場合はその<b>次の行</b>に書きます。"),
+  ],
+  place: [
+    Q("Pythonで、if文やfor文の処理のまとまり（ブロック）を表す方法はどれ？", null, ["行頭のインデント（字下げ）", "{ } で囲む", "begin と end で囲む", "行末にセミコロンを付ける"], 0, "Pythonは<b>インデント</b>でブロックを表します。これがPython最大の特徴の一つです。"),
+    Q("Pythonの対話モード（>>> が表示される画面）を終了するために入力するものはどれ？", null, ["quit()", "stop()", "close()", ":q"], 0, "<b>quit()</b> で終了します。Unixでは Ctrl-D、Windowsでは Ctrl-Z → Enter でも終了できます。"),
+  ]},
+
+{ id: 2, title: "数値と演算子", ch: "3章", days: [2, 3], weight: "3章で6問前後",
+  intro: "電卓としてのPython。演算子の優先順位と、割り算・べき乗の細かいルールがよく問われます。",
+  points: [
+    { h: "四則演算と割り算の3兄弟", body: "<ul><li><code class='i'>/</code> は<span class='hl'>常に float</span>を返す（<code class='i'>8 / 4</code> → <code class='i'>2.0</code>）</li><li><code class='i'>//</code> は切り捨て除算。<span class='hl'>マイナス無限大の方向</span>に丸める</li><li><code class='i'>%</code> は余り。結果の符号は右側（割る数）と同じ</li></ul>",
+      code: String.raw`>>> 17 / 3
+5.666666666666667
+>>> 17 // 3
+5
+>>> -7 // 2      # -3.5 を「小さい方」へ切り捨て
+-4
+>>> -7 % 2       # -7 = 2 * (-4) + 1
+1`},
+    { h: "べき乗 ** と優先順位", body: "<p><code class='i'>**</code> は単項マイナスより優先順位が高く、また<span class='hl'>右から結合</span>します。</p>",
+      code: String.raw`>>> -3 ** 2        # -(3 ** 2)
+-9
+>>> (-3) ** 2
+9
+>>> 2 ** 3 ** 2    # 2 ** (3 ** 2) = 2 ** 9
+512`},
+    { h: "int と float の混在", body: "<p>int と float を混ぜて計算すると結果は float になります。<code class='i'>4 * 3.75 - 1</code> → <code class='i'>14.0</code>。複素数も扱え、虚数部は <code class='i'>j</code> を付けて書きます（<code class='i'>3+5j</code>）。</p>" },
+    { h: "対話モードの _ 変数", body: "<p>対話モードでは、<span class='hl'>最後に表示された式の値</span>が変数 <code class='i'>_</code> に入ります。読み取り専用として扱い、自分で代入しないこと。</p>",
+      code: String.raw`>>> tax = 12.5 / 100
+>>> price = 100.50
+>>> price * tax
+12.5625
+>>> price + _
+113.0625
+>>> round(_, 2)
+113.06`},
+    { h: "代入と未定義の変数", body: "<p><code class='i'>=</code> で代入します。代入していない変数を使うと <code class='i'>NameError</code> になります。</p>", trap: "<b>ひっかけ注意：</b><code class='i'>-3 ** 2</code> と <code class='i'>2 ** 3 ** 2</code> は試験の定番です。" },
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`print(8 / 4)`, ["2.0", "2", "2.00", "エラーになる"], 0, "<code class='i'>/</code> は割り切れても<b>必ず float</b> を返します。"),
+    Q("次のコードの出力はどれ？", String.raw`print(-7 // 2)`, ["-4", "-3", "-3.5", "3"], 0, "-3.5 を<b>マイナス無限大方向</b>へ切り捨てるので -4。0方向（-3）ではありません。"),
+    Q("次のコードの出力はどれ？", String.raw`print(-3 ** 2)`, ["-9", "9", "-6", "エラーになる"], 0, "<code class='i'>**</code> は単項マイナスより優先されるので <b>-(3**2) = -9</b>。"),
+    Q("次のコードの出力はどれ？", String.raw`print(2 ** 3 ** 2)`, ["512", "64", "36", "729"], 0, "<code class='i'>**</code> は<b>右結合</b>。2 ** (3 ** 2) = 2 ** 9 = 512。"),
+    Q("次のコードの出力はどれ？", String.raw`print(7 % 3, -7 % 3)`, ["1 2", "1 -1", "1 -2", "-1 2"], 0, "-7 = 3 × (-3) + 2 なので <b>-7 % 3 は 2</b>。余りの符号は割る数（3）と同じになります。"),
+    Q("対話モードの変数 _ について正しいものはどれ？", null, ["最後に表示された式の値が入っている", "最初に定義した変数の値が入っている", "直前に発生したエラーの内容が入っている", "スクリプト実行時にも常に使える組み込み定数である"], 0, "<b>対話モード</b>で最後に表示された値が入ります。電卓のように続けて計算するときに便利です。"),
+    Q("次のコードの出力はどれ？", String.raw`print(3 * 3.75 / 1.5)`, ["7.5", "7", "7.50", "8"], 0, "int と float の混在なので結果は float。11.25 / 1.5 = <b>7.5</b>。"),
+    Q("次のコードを実行すると何が起きる？（n はまだ一度も代入していない）", String.raw`print(n)`, ["NameError が発生する", "None と表示される", "0 と表示される", "空行が表示される"], 0, "定義されていない名前を使うと <b>NameError</b>。"),
+  ],
+  place: [
+    Q("次のコードの出力はどれ？", String.raw`print(10 / 4)`, ["2.5", "2", "2.0", "3"], 0, "<code class='i'>/</code> は小数を含む結果（float）を返します。"),
+    Q("次のコードの出力はどれ？", String.raw`print(10 // 4, 10 % 4)`, ["2 2", "2.5 2", "2 0", "3 2"], 0, "<code class='i'>//</code> は切り捨て除算で 2、<code class='i'>%</code> は余りで 2。"),
+  ]},
+
+{ id: 3, title: "文字列", ch: "3章", days: [4, 5], weight: "3章で6問前後",
+  intro: "インデックスとスライスは文字列・リスト共通の基本です。ここで確実に身につけましょう。",
+  points: [
+    { h: "書き方いろいろ", body: "<ul><li><code class='i'>'...'</code> と <code class='i'>\"...\"</code> は同じ意味</li><li><code class='i'>\\n</code> などのエスケープは <code class='i'>print()</code> で解釈される</li><li><span class='hl'>raw文字列</span> <code class='i'>r'C:\\name'</code> はバックスラッシュをそのまま扱う</li><li>三重引用符 <code class='i'>\"\"\"...\"\"\"</code> で複数行。行末の <code class='i'>\\</code> で改行を入れない</li></ul>",
+      code: String.raw`>>> print('C:\some\name')    # \n が改行になる
+C:\some
+ame
+>>> print(r'C:\some\name')   # raw文字列
+C:\some\name`},
+    { h: "連結と繰り返し", body: "<p><code class='i'>+</code> で連結、<code class='i'>*</code> で繰り返し。<span class='hl'>リテラル同士</span>を並べると自動で連結されますが、変数や式とは連結されません。</p>",
+      code: String.raw`>>> 3 * 'un' + 'ium'
+'unununium'
+>>> 'Py' 'thon'
+'Python'
+>>> prefix = 'Py'
+>>> prefix 'thon'        # SyntaxError
+>>> prefix + 'thon'      # こちらはOK
+'Python'`},
+    { h: "インデックス", body: "<p>先頭は <code class='i'>0</code>。<span class='hl'>負の数は末尾から</span>数えます（<code class='i'>-1</code> が最後）。範囲外のインデックスは <code class='i'>IndexError</code>。</p>",
+      code: String.raw` +---+---+---+---+---+---+
+ | P | y | t | h | o | n |
+ +---+---+---+---+---+---+
+ 0   1   2   3   4   5   6
+-6  -5  -4  -3  -2  -1`},
+    { h: "スライス [開始:終了]", body: "<p><span class='hl'>開始は含み、終了は含まない</span>。省略すると先頭／末尾。スライスは範囲外を指定してもエラーにならず、収まる分だけ返します。</p>",
+      code: String.raw`>>> word = 'Python'
+>>> word[0:2], word[2:5]
+('Py', 'tho')
+>>> word[:2] + word[2:]   # 常に元の文字列と同じ
+'Python'
+>>> word[-2:]
+'on'
+>>> word[4:42]            # 範囲外でもOK
+'on'`},
+    { h: "文字列は変更できない（イミュータブル）", body: "<p>一部だけ書き換えようとすると <code class='i'>TypeError</code>。新しい文字列を作ります。長さは <code class='i'>len()</code>。</p>",
+      code: String.raw`>>> word[0] = 'J'
+TypeError: 'str' object does not support item assignment
+>>> 'J' + word[1:]
+'Jython'`},
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`word = 'Python'
+print(word[-2])`, ["o", "h", "n", "t"], 0, "-1 が 'n'、<b>-2 が 'o'</b>。"),
+    Q("次のコードの出力はどれ？", String.raw`word = 'Python'
+print(word[:2] + word[4:])`, ["Pyon", "Pyhon", "Pyton", "Pthon"], 0, "word[:2] は 'Py'、word[4:] は 'on' → <b>'Pyon'</b>。"),
+    Q("次のコードの出力はどれ？", String.raw`word = 'Python'
+print(word[4:42])`, ["on", "IndexError が発生する", "空文字列", "n"], 0, "<b>スライスは範囲外でもエラーにならず</b>、収まる分 'on' を返します。インデックス word[42] ならエラーです。"),
+    Q("次のコードを実行すると何が起きる？", String.raw`word = 'Python'
+word[0] = 'J'`, ["TypeError が発生する", "word が 'Jython' になる", "IndexError が発生する", "何も起きない（word は変わらない）"], 0, "文字列は<b>イミュータブル（変更不可）</b>なので TypeError。"),
+    Q("次のコードの出力はどれ？", String.raw`print(3 * 'un' + 'ium')`, ["unununium", "un3ium", "uniumuniumunium", "エラーになる"], 0, "<code class='i'>*</code> は <code class='i'>+</code> より先に計算されるので 'ununun' + 'ium'。"),
+    Q("prefix = 'Py' のとき、エラーになるものはどれ？", null, ["prefix 'thon'", "'Py' 'thon'", "prefix + 'thon'", "('Py' 'thon')"], 0, "自動連結は<b>リテラル同士だけ</b>。変数とリテラルを並べると SyntaxError です。"),
+    Q("次のコードの出力はどれ？", String.raw`print(r'C:\some\name')`, ["C:\\some\\name", "C:\\some（改行）ame", "SyntaxError になる", "C:\\\\some\\\\name"], 0, "<b>r</b> を付けた raw 文字列ではバックスラッシュがそのまま表示されます。"),
+    Q("次のコードの出力はどれ？", String.raw`print(len('a\nb'))`, ["3", "4", "2", "5"], 0, "<code class='i'>\\n</code> は<b>改行1文字</b>なので a・改行・b の 3 文字。"),
+  ],
+  place: [
+    Q("次のコードの出力はどれ？", String.raw`s = 'Hello'
+print(s[1])`, ["e", "H", "l", "Hello"], 0, "インデックスは<b>0から</b>始まるので s[1] は 'e'。"),
+    Q("次のコードの出力はどれ？", String.raw`print('ab' * 2 + 'c')`, ["ababc", "abcabc", "ab2c", "エラーになる"], 0, "'ab' * 2 = 'abab'、そこに 'c' を連結。"),
+  ]},
+
+{ id: 4, title: "リストの基本と初めてのプログラム", ch: "3章", days: [6, 7], weight: "3章で6問前後",
+  intro: "リストは変更できる（ミュータブル）点が文字列と違います。代入とコピーの違いが重要です。",
+  points: [
+    { h: "リストの作成と操作", body: "<p>角かっこで作り、インデックスとスライスは文字列と同じ。<code class='i'>+</code> で連結、<code class='i'>append()</code> で末尾に追加、<code class='i'>len()</code> で長さ。</p>",
+      code: String.raw`>>> squares = [1, 4, 9, 16, 25]
+>>> squares[-3:]
+[9, 16, 25]
+>>> squares + [36, 49]
+[1, 4, 9, 16, 25, 36, 49]
+>>> cubes = [1, 8, 27, 65, 125]
+>>> cubes[3] = 64          # 変更できる（ミュータブル）`},
+    { h: "代入は「同じ物」を指す、スライスは「コピー」", body: "<p><code class='i'>b = a</code> は同じリストに別名を付けるだけ。<code class='i'>a[:]</code> は新しいリスト（浅いコピー）を作ります。</p>",
+      code: String.raw`>>> a = [1, 2, 3]
+>>> b = a        # 同じオブジェクト
+>>> b.append(4)
+>>> a
+[1, 2, 3, 4]
+>>> c = a[:]     # コピー
+>>> c.append(5)
+>>> a
+[1, 2, 3, 4]`},
+    { h: "スライスへの代入", body: "<p>スライスに代入すると、長さが変わる置き換えや削除もできます。</p>",
+      code: String.raw`>>> letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> letters[2:5] = ['C', 'D', 'E']
+>>> letters[2:5] = []       # 削除
+>>> letters
+['a', 'b', 'f', 'g']
+>>> letters[:] = []         # 全部消す
+>>> letters
+[]`},
+    { h: "入れ子のリスト", body: "<p>リストの中にリストを入れられます。<code class='i'>x[1][0]</code> のように2段階でアクセス。</p>",
+      code: String.raw`>>> x = [['a', 'b', 'c'], [1, 2, 3]]
+>>> x[0]
+['a', 'b', 'c']
+>>> x[1][0]
+1`},
+    { h: "初めてのプログラム：フィボナッチ数列", body: "<p><span class='hl'>多重代入</span>は右辺がすべて計算されてから左辺に入ります。<code class='i'>print()</code> の <code class='i'>end</code> 引数で改行の代わりの文字を指定できます。</p>",
+      code: String.raw`a, b = 0, 1
+while a < 10:
+    print(a, end=',')
+    a, b = b, a + b
+# 出力: 0,1,1,2,3,5,8,`},
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`squares = [1, 4, 9, 16, 25]
+print(squares[-3:])`, ["[9, 16, 25]", "[16, 25]", "[1, 4, 9]", "[25, 16, 9]"], 0, "-3 は後ろから3番目（9）。そこから末尾まで。"),
+    Q("次のコードの出力はどれ？", String.raw`a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)`, ["[1, 2, 3, 4]", "[1, 2, 3]", "[4]", "エラーになる"], 0, "<code class='i'>b = a</code> は<b>同じリスト</b>を指すだけなので、a も変わります。"),
+    Q("次のコードの出力はどれ？", String.raw`a = [1, 2, 3]
+b = a[:]
+b.append(4)
+print(a)`, ["[1, 2, 3]", "[1, 2, 3, 4]", "[4]", "[]"], 0, "<code class='i'>a[:]</code> は<b>新しいリスト（コピー）</b>なので a は変わりません。"),
+    Q("次のコードの出力はどれ？", String.raw`letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+letters[2:5] = []
+print(letters)`, ["['a', 'b', 'f', 'g']", "['a', 'b', 'e', 'f', 'g']", "['a', 'b', [], 'f', 'g']", "['c', 'd', 'e']"], 0, "インデックス2〜4（'c','d','e'）が<b>空リストで置き換え＝削除</b>されます。"),
+    Q("次のコードの出力はどれ？", String.raw`x = [['a', 'b', 'c'], [1, 2, 3]]
+print(x[1][0])`, ["1", "'b'", "['a', 'b', 'c']", "2"], 0, "x[1] は [1, 2, 3]、その [0] は <b>1</b>。"),
+    Q("次のコードの出力はどれ？", String.raw`a, b = 0, 1
+while a < 10:
+    print(a, end=',')
+    a, b = b, a + b`, ["0,1,1,2,3,5,8,", "0,1,2,3,5,8,", "1,1,2,3,5,8,", "0,1,1,2,3,5,8,13,"], 0, "多重代入では<b>右辺を先に全部計算</b>します。a が 13 になった時点で while を抜けます。"),
+    Q("次のコードの出力はどれ？", String.raw`print([1, 2] + [3])`, ["[1, 2, 3]", "[[1, 2], 3]", "[4, 2]", "TypeError が発生する"], 0, "リストの <code class='i'>+</code> は<b>連結</b>です。"),
+    Q("次のコードの出力はどれ？", String.raw`nums = [1, 2, 3]
+nums[1:2] = [7, 8, 9]
+print(len(nums))`, ["5", "3", "4", "6"], 0, "要素1個（2）が3個に置き換わり [1, 7, 8, 9, 3] で <b>5</b>。"),
+  ],
+  place: [
+    Q("次のコードの出力はどれ？", String.raw`a = [10, 20, 30]
+a.append(40)
+print(len(a))`, ["4", "3", "40", "100"], 0, "append で要素が1つ増えて <b>4個</b>。"),
+    Q("次のコードの出力はどれ？", String.raw`a = [1, 2, 3, 4, 5]
+print(a[1:3])`, ["[2, 3]", "[1, 2, 3]", "[2, 3, 4]", "[1, 2]"], 0, "スライスは<b>開始を含み、終了を含まない</b>。インデックス1と2。"),
+  ]},
+
+{ id: 5, title: "制御構文（if / for / range / match）", ch: "4章", days: [8, 9, 10], weight: "4章で9問前後（最多）",
+  intro: "4章は出題数が最も多い章です。特に for 文の else 節と range() は毎回のように出ます。",
+  points: [
+    { h: "if / elif / else", body: "<p><code class='i'>elif</code> は else if の略。いくつ書いてもよく、上から順に最初に真になった1つだけが実行されます。</p>",
+      code: String.raw`x = 7
+if x < 0:
+    print('負')
+elif x == 0:
+    print('ゼロ')
+else:
+    print('正')`},
+    { h: "for 文と range()", body: "<p>for はシーケンスの要素を順番に取り出します。<code class='i'>range(開始, 終了, 刻み)</code> は<span class='hl'>終了を含まない</span>。</p>",
+      code: String.raw`>>> list(range(5))
+[0, 1, 2, 3, 4]
+>>> list(range(5, 10))
+[5, 6, 7, 8, 9]
+>>> list(range(0, 10, 3))
+[0, 3, 6, 9]
+>>> list(range(-10, -100, -30))
+[-10, -40, -70]
+>>> sum(range(4))      # 0+1+2+3
+6`},
+    { h: "break / continue / ループの else 節", body: "<p><code class='i'>break</code> はループを抜ける、<code class='i'>continue</code> は次の周回へ。ループの <code class='i'>else</code> は<span class='hl'>break されずに最後まで回ったとき</span>だけ実行されます。</p>",
+      code: String.raw`for n in range(2, 10):
+    for x in range(2, n):
+        if n % x == 0:
+            break          # 割り切れた＝素数ではない
+    else:
+        print(n, 'は素数')  # break しなかったときだけ
+# 2 3 5 7 が素数と表示される`},
+    { h: "pass 文", body: "<p>何もしない文。文法上なにか書く必要があるけれど、処理がないときに使います（空のクラスや関数の仮置き）。</p>",
+      code: String.raw`class MyEmptyClass:
+    pass
+
+def initlog(*args):
+    pass   # あとで実装する`},
+    { h: "match 文（Python 3.10〜）", body: "<p>値をパターンと照合します。<code class='i'>|</code> で複数パターン、<code class='i'>_</code> はワイルドカード（どれにも当たらないとき）。</p>",
+      code: String.raw`def http_error(status):
+    match status:
+        case 400:
+            return "Bad request"
+        case 401 | 403 | 404:
+            return "Not allowed"
+        case _:
+            return "Something's wrong"`},
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`print(list(range(0, 10, 3)))`, ["[0, 3, 6, 9]", "[0, 3, 6]", "[3, 6, 9]", "[0, 3, 6, 9, 12]"], 0, "0から3刻みで、10<b>未満</b>まで。"),
+    Q("次のコードの出力はどれ？", String.raw`print(list(range(-10, -100, -30)))`, ["[-10, -40, -70]", "[-10, -40, -70, -100]", "[]", "[-100, -70, -40, -10]"], 0, "-30 刻みで -100 に<b>達する手前</b>まで。"),
+    Q("次のコードの出力はどれ？", String.raw`for n in range(2, 6):
+    for x in range(2, n):
+        if n % x == 0:
+            break
+    else:
+        print(n, end=' ')`, ["2 3 5", "4", "2 3 4 5", "3 5"], 0, "else は<b>break しなかったとき</b>だけ実行。4 は 2 で割り切れて break するので表示されません。n=2 は内側ループが0回なので else が実行されます。"),
+    Q("次のコードの出力はどれ？", String.raw`for i in range(5):
+    if i % 2 == 0:
+        continue
+    print(i, end='')`, ["13", "024", "01234", "1"], 0, "偶数のときは <b>continue</b> で print を飛ばします。"),
+    Q("pass 文の説明として正しいものはどれ？", null, ["何もしない。文法上文が必要だが処理が不要なときに使う", "ループを途中で終了する", "次のループ周回に進む", "関数から値を返さずに抜ける"], 0, "<b>pass は何もしない文</b>。ループ終了は break、次の周回は continue。"),
+    Q("次のコードの出力はどれ？", String.raw`def http_error(status):
+    match status:
+        case 400:
+            return "Bad request"
+        case 401 | 403:
+            return "Not allowed"
+        case _:
+            return "Other"
+
+print(http_error(403))`, ["Not allowed", "Bad request", "Other", "None"], 0, "<code class='i'>|</code> は「または」。403 は 2番目のパターンに一致します。"),
+    Q("次のコードの出力はどれ？", String.raw`print(sum(range(4)))`, ["6", "10", "4", "3"], 0, "range(4) は 0,1,2,3。合計 <b>6</b>。"),
+    Q("次のコードの出力はどれ？", String.raw`i = 0
+while i < 3:
+    i += 1
+else:
+    print('done', i)`, ["done 3", "done 2", "何も表示されない", "SyntaxError になる"], 0, "while にも else 節が書けます。条件が偽になって（break せずに）終わったので <b>done 3</b>。"),
+  ],
+  place: [
+    Q("次のコードの出力はどれ？", String.raw`for i in range(3):
+    print(i, end=' ')`, ["0 1 2", "1 2 3", "0 1 2 3", "3"], 0, "range(3) は <b>0, 1, 2</b>（3は含まない）。"),
+    Q("次のコードの出力はどれ？", String.raw`x = 7
+if x > 10:
+    print('A')
+elif x > 5:
+    print('B')
+else:
+    print('C')`, ["B", "A", "C", "B と C"], 0, "上から順に判定し、最初に真になった <b>elif x > 5</b> だけが実行されます。"),
+  ]},
+
+{ id: 6, title: "関数の定義", ch: "4章", days: [11, 12, 13, 14], weight: "4章で9問前後（最多）",
+  intro: "試験で一番ひっかけが多い単元です。デフォルト引数の評価タイミングと、引数の種類（/ と *）をしっかり。",
+  points: [
+    { h: "def と return", body: "<p>本体の最初の文字列リテラルは <span class='hl'>docstring</span>（説明文）。<code class='i'>return</code> がない、または値なしの <code class='i'>return</code> の関数は <code class='i'>None</code> を返します。</p>",
+      code: String.raw`def fib2(n):
+    """n までのフィボナッチ数列をリストで返す"""
+    result = []
+    a, b = 0, 1
+    while a < n:
+        result.append(a)
+        a, b = b, a + b
+    return result`},
+    { h: "デフォルト引数は「定義したとき」に1回だけ評価", body: "<p>ここが最頻出です。デフォルト値は関数を<span class='hl'>定義した時点</span>で1回だけ評価されます。リストなどの変更可能な値をデフォルトにすると、呼び出し間で共有されます。</p>",
+      code: String.raw`i = 5
+def f(arg=i):
+    print(arg)
+i = 6
+f()            # 5 （定義時の i）
+
+def g(a, L=[]):
+    L.append(a)
+    return L
+g(1); g(2)
+print(g(3))    # [1, 2, 3] ← 同じリストが使い回される
+
+def h(a, L=None):      # 共有したくない場合の定石
+    if L is None:
+        L = []
+    L.append(a)
+    return L`},
+    { h: "キーワード引数・*args・**kwargs", body: "<ul><li>キーワード引数は<span class='hl'>位置引数の後ろ</span>に書く</li><li>同じ引数に2回値を渡すと TypeError</li><li><code class='i'>*args</code> は余った位置引数を<span class='hl'>タプル</span>で、<code class='i'>**kwargs</code> は余ったキーワード引数を<span class='hl'>辞書</span>で受け取る</li></ul>",
+      code: String.raw`def f(a, b=2, *args, **kw):
+    print(a, b, args, kw)
+
+f(1, 3, 4, 5, x=6)   # 1 3 (4, 5) {'x': 6}
+
+def parrot(voltage, state='a stiff', action='voom'): ...
+parrot(1000)                          # OK
+parrot(action='VOOOM', voltage=1000)  # OK（順不同）
+parrot(voltage=5.0, 'dead')           # SyntaxError（キーワードの後に位置引数）
+parrot(110, voltage=220)              # TypeError（同じ引数に2回）`},
+    { h: "位置専用 / とキーワード専用 *", body: "<p><code class='i'>/</code> より前は<span class='hl'>位置引数としてのみ</span>、<code class='i'>*</code> より後は<span class='hl'>キーワード引数としてのみ</span>渡せます。</p>",
+      code: String.raw`def f(pos, /, standard, *, kwd):
+    ...
+f(1, 2, kwd=3)            # OK
+f(1, standard=2, kwd=3)   # OK
+f(pos=1, standard=2, kwd=3)  # TypeError（pos はキーワード不可）
+f(1, 2, 3)                # TypeError（kwd は位置不可）`},
+    { h: "アンパック・lambda・コーディングスタイル", body: "<ul><li>リストを <code class='i'>*</code>、辞書を <code class='i'>**</code> で展開して引数に渡せる</li><li><code class='i'>lambda 引数: 式</code> で小さな無名関数</li><li>PEP 8：インデントは<span class='hl'>スペース4つ</span>、1行は79文字以内、クラス名は <code class='i'>UpperCamelCase</code>、関数名は <code class='i'>lowercase_with_underscores</code>、メソッドの第1引数は <code class='i'>self</code></li></ul>",
+      code: String.raw`>>> args = [3, 6]
+>>> list(range(*args))
+[3, 4, 5]
+>>> f = lambda x, y=2: x * y
+>>> f(3)
+6`},
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`def f(a, L=[]):
+    L.append(a)
+    return L
+
+f(1)
+f(2)
+print(f(3))`, ["[1, 2, 3]", "[3]", "[1]", "[[1], [2], [3]]"], 0, "デフォルト値のリストは<b>定義時に1回だけ作られ</b>、呼び出しのたびに同じものが使われます。"),
+    Q("次のコードの出力はどれ？", String.raw`i = 5
+def f(arg=i):
+    print(arg)
+i = 6
+f()`, ["5", "6", "None", "NameError が発生する"], 0, "デフォルト値は<b>関数を定義した時点</b>の i（5）で決まります。"),
+    Q("次のコードの出力はどれ？", String.raw`def f():
+    pass
+
+print(f())`, ["None", "（何も表示されない）", "pass", "0"], 0, "return のない関数は <b>None</b> を返し、print は None と表示します。"),
+    Q("次のコードの出力はどれ？", String.raw`def f(a, b=2, *args, **kw):
+    print(a, b, args, kw)
+
+f(1, 3, 4, 5, x=6)`, ["1 3 (4, 5) {'x': 6}", "1 2 (3, 4, 5) {'x': 6}", "1 3 [4, 5] {'x': 6}", "TypeError が発生する"], 0, "b には 3 が入り、残りの位置引数は<b>タプル</b>、キーワード引数は<b>辞書</b>にまとまります。"),
+    Q("def f(pos, /, standard, *, kwd): と定義された関数の呼び出しで、正しく動くものはどれ？", null, ["f(1, 2, kwd=3)", "f(pos=1, standard=2, kwd=3)", "f(1, 2, 3)", "f(1, kwd=3)"], 0, "pos は<b>位置のみ</b>、kwd は<b>キーワードのみ</b>、standard はどちらでも可。f(1, kwd=3) は standard が足りません。"),
+    Q("def parrot(voltage, state='a stiff', action='voom'): の呼び出しで、エラーになるものはどれ？", null, ["parrot(voltage=5.0, 'dead')", "parrot(1000)", "parrot(action='VOOOM', voltage=1000000)", "parrot('a thousand', state='pushing up the daisies')"], 0, "<b>キーワード引数の後に位置引数</b>は書けません（SyntaxError）。"),
+    Q("次のコードの出力はどれ？", String.raw`args = [3, 6]
+print(list(range(*args)))`, ["[3, 4, 5]", "[3, 6]", "[3, 4, 5, 6]", "TypeError が発生する"], 0, "<code class='i'>*args</code> でリストが展開され、range(3, 6) になります。"),
+    Q("PEP 8 で推奨されているインデントはどれ？", null, ["スペース4つ", "タブ1つ", "スペース2つ", "スペース8つ"], 0, "PEP 8 では<b>スペース4つ</b>、タブは使わないことが推奨されています。"),
+  ],
+  place: [
+    Q("次のコードの出力はどれ？", String.raw`def add(a, b=10):
+    return a + b
+
+print(add(5))`, ["15", "5", "10", "エラーになる"], 0, "b を省略したのでデフォルト値 10 が使われ <b>5 + 10 = 15</b>。"),
+    Q("次のコードの出力はどれ？", String.raw`f = lambda x: x + 1
+print(f(2))`, ["3", "2", "x + 1", "エラーになる"], 0, "<code class='i'>lambda</code> は小さな無名関数。f(2) は 2 + 1。"),
+  ]},
+
+{ id: 7, title: "データ構造（リスト・タプル・集合・辞書）", ch: "5章", days: [15, 16, 17, 18], weight: "7問前後",
+  intro: "4章に次ぐ出題数です。メソッドの戻り値、内包表記、空の {} が何になるかを押さえましょう。",
+  points: [
+    { h: "リストのメソッド", body: "<ul><li><code class='i'>append(x)</code> 末尾に1つ／<code class='i'>extend(iterable)</code> 中身を全部追加</li><li><code class='i'>insert(i, x)</code>、<code class='i'>remove(x)</code>（最初の x を削除。無ければ ValueError）</li><li><code class='i'>pop([i])</code> 取り出して<span class='hl'>返す</span>（省略時は末尾）</li><li><code class='i'>index(x)</code>、<code class='i'>count(x)</code>、<code class='i'>clear()</code>、<code class='i'>copy()</code></li><li><code class='i'>sort()</code> と <code class='i'>reverse()</code> はその場で並べ替えて <span class='hl'>None を返す</span></li></ul>",
+      code: String.raw`>>> a = [3, 1, 2]
+>>> print(a.sort())
+None
+>>> a
+[1, 2, 3]
+>>> from collections import deque   # キューは deque で
+>>> q = deque(['a', 'b'])
+>>> q.append('c'); q.popleft()
+'a'`},
+    { h: "リスト内包表記", body: "<p><code class='i'>[式 for 変数 in イテラブル if 条件]</code>。for を複数書くと、<span class='hl'>左の for が外側のループ</span>になります。</p>",
+      code: String.raw`>>> [x**2 for x in range(5)]
+[0, 1, 4, 9, 16]
+>>> [x for x in range(10) if x % 3 == 0]
+[0, 3, 6, 9]
+>>> [(x, y) for x in [1, 2] for y in [1, 3] if x != y]
+[(1, 3), (2, 1), (2, 3)]`},
+    { h: "del 文とタプル", body: "<p><code class='i'>del a[0]</code>、<code class='i'>del a[2:4]</code>、<code class='i'>del a</code>（変数ごと）。タプルは<span class='hl'>カンマ</span>で作られ、変更できません。要素1つのタプルは<span class='hl'>末尾にカンマ</span>が必要です。</p>",
+      code: String.raw`>>> t = 12345, 54321, 'hello!'   # かっこ無しでもタプル
+>>> x, y, z = t                  # アンパック
+>>> empty = ()
+>>> single = 'hello',            # ('hello',)
+>>> type(('hello'))              # ただの文字列
+<class 'str'>`},
+    { h: "集合（set）と辞書（dict）", body: "<p><span class='hl'>空の <code class='i'>{}</code> は辞書</span>。空集合は <code class='i'>set()</code>。集合は重複なし・順序なしで、<code class='i'>-</code> 差 <code class='i'>|</code> 和 <code class='i'>&amp;</code> 積 <code class='i'>^</code> 対称差。辞書のキーは変更不可の型（文字列・数値・タプル）。<code class='i'>list(d)</code> は<span class='hl'>挿入順</span>のキー一覧。</p>",
+      code: String.raw`>>> a = set('abracadabra')    # {'a','b','r','c','d'}
+>>> b = set('alacazam')
+>>> a - b
+{'r', 'd', 'b'}
+>>> tel = {'jack': 4098, 'sape': 4139}
+>>> tel['guido'] = 4127
+>>> del tel['sape']
+>>> list(tel)
+['jack', 'guido']
+>>> dict(sape=4139, jack=4098)
+{'sape': 4139, 'jack': 4098}`},
+    { h: "ループのテクニックと条件の評価", body: "<ul><li><code class='i'>d.items()</code>、<code class='i'>enumerate()</code>、<code class='i'>zip()</code>、<code class='i'>reversed()</code>、<code class='i'>sorted()</code></li><li><code class='i'>and</code>・<code class='i'>or</code> は短絡評価で、<span class='hl'>最後に評価した値そのもの</span>を返す</li><li>シーケンスの比較は先頭から順に（辞書式）</li></ul>",
+      code: String.raw`>>> for i, v in enumerate(['tic', 'tac']):
+...     print(i, v)
+0 tic
+1 tac
+>>> '' or 'Trondheim' or 'Hammer Dance'
+'Trondheim'
+>>> (1, 2, 3) < (1, 2, 4)
+True
+>>> [1, 2] < [1, 2, -1]      # 短い方が小さい
+True`},
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`a = [3, 1, 2]
+b = a.sort()
+print(b)`, ["None", "[1, 2, 3]", "[3, 1, 2]", "[3, 2, 1]"], 0, "<code class='i'>sort()</code> は a をその場で並べ替え、<b>None を返します</b>。並べ替えた新しいリストが欲しいときは sorted(a)。"),
+    Q("次のコードの出力はどれ？", String.raw`a = [1, 2, 3]
+a.extend([4, 5])
+a.append([6])
+print(len(a))`, ["6", "7", "5", "3"], 0, "extend で 4, 5 が個別に追加（5個）、append で [6] が<b>リスト1個として</b>追加 → 6個。"),
+    Q("次のコードの出力はどれ？", String.raw`print([x * 2 for x in range(5) if x % 2])`, ["[2, 6]", "[0, 4, 8]", "[1, 3]", "[0, 2, 4, 6, 8]"], 0, "x % 2 が真（1）になる奇数 1, 3 だけを2倍。"),
+    Q("次のコードの出力はどれ？", String.raw`x = ('a')
+y = ('a',)
+print(type(x).__name__, type(y).__name__)`, ["str tuple", "tuple tuple", "str str", "tuple str"], 0, "タプルを作るのは<b>カンマ</b>。('a') はただのかっこ付き文字列です。"),
+    Q("次のコードの出力はどれ？", String.raw`s = {}
+print(type(s).__name__)`, ["dict", "set", "list", "tuple"], 0, "<b>空の {} は辞書</b>。空集合は set() で作ります。"),
+    Q("次のコードの出力はどれ？", String.raw`a = set('abracadabra')
+b = set('alacazam')
+print(sorted(a - b))`, ["['b', 'd', 'r']", "['a', 'c']", "['b', 'd', 'l', 'm', 'r', 'z']", "['l', 'm', 'z']"], 0, "a は {a,b,r,c,d}、b は {a,l,c,z,m}。<b>a にあって b にない</b>のは b, d, r。"),
+    Q("次のコードの出力はどれ？", String.raw`print('' or 'Trondheim' or 'Hammer')`, ["Trondheim", "True", "Hammer", "（空文字列）"], 0, "or は<b>最初に真になった値そのもの</b>を返します。'' は偽なので次の 'Trondheim'。"),
+    Q("次のコードの出力はどれ？", String.raw`for i, v in enumerate(['tic', 'tac']):
+    print(i, v, end=' ')`, ["0 tic 1 tac", "1 tic 2 tac", "tic tac", "(0, 'tic') (1, 'tac')"], 0, "enumerate は<b>(インデックス, 要素)</b>を0から順に返します。"),
+    Q("次のコードの出力はどれ？", String.raw`d = {'a': 1}
+d['b'] = 2
+del d['a']
+print(list(d))`, ["['b']", "[2]", "['a', 'b']", "[('b', 2)]"], 0, "list(辞書) は<b>キーの一覧</b>。'a' は削除済み。"),
+    Q("次のコードの出力はどれ？", String.raw`print((1, 2, 3) < (1, 2, 4), [1, 2] < [1, 2, -1])`, ["True True", "True False", "False True", "TypeError が発生する"], 0, "先頭から順に比較。2つ目は [1, 2] が<b>先に尽きる（短い）ので小さい</b>。"),
+  ],
+  place: [
+    Q("次のコードの出力はどれ？", String.raw`d = {'apple': 100, 'banana': 200}
+print(d['banana'])`, ["200", "100", "banana", "エラーになる"], 0, "辞書は<b>キーで値を取り出し</b>ます。"),
+    Q("次のコードの出力はどれ？", String.raw`print([n * n for n in range(4)])`, ["[0, 1, 4, 9]", "[1, 4, 9, 16]", "[0, 1, 2, 3]", "[0, 2, 4, 6]"], 0, "<b>リスト内包表記</b>。0〜3 をそれぞれ2乗します。"),
+  ]},
+
+{ id: 8, title: "モジュールとパッケージ", ch: "6章", days: [19, 20], weight: "2問前後",
+  intro: "暗記型の単元。__name__、検索パス、__all__、__pycache__ が出題ポイントです。",
+  points: [
+    { h: "import のしかた", body: "<p>ファイル名（<code class='i'>.py</code> を除く）がモジュール名です。</p>",
+      code: String.raw`import fibo               # fibo.fib(1000) のように使う
+from fibo import fib, fib2
+from fibo import *        # _ で始まる名前以外を全部
+import fibo as fib        # 別名を付ける
+from fibo import fib as fibonacci`},
+    { h: "__name__ と \"__main__\"", body: "<p>ファイルを<span class='hl'>直接スクリプトとして実行すると <code class='i'>__name__</code> が <code class='i'>\"__main__\"</code></span> になります。import されたときはモジュール名です。</p>",
+      code: String.raw`if __name__ == "__main__":
+    import sys
+    fib(int(sys.argv[1]))   # 直接実行したときだけ動く`},
+    { h: "モジュール検索パスとキャッシュ", body: "<ul><li>まず<span class='hl'>組み込みモジュール</span>を探し、次に <code class='i'>sys.path</code> の順に探す</li><li><code class='i'>sys.path</code> の初期値：入力スクリプトのあるディレクトリ、環境変数 <code class='i'>PYTHONPATH</code>、インストールごとのデフォルト（site-packages など）</li><li>モジュールは1セッションで1回だけ読み込まれる。読み直すなら <code class='i'>importlib.reload()</code></li><li>コンパイル済みファイルは <code class='i'>__pycache__/fibo.cpython-312.pyc</code> のように保存される</li></ul>" },
+    { h: "dir() 関数", body: "<p><code class='i'>dir(モジュール)</code> はそのモジュールが定義している名前の一覧（ソート済み）。引数なしなら<span class='hl'>現在定義している名前</span>の一覧。組み込み関数は含まれないので <code class='i'>dir(builtins)</code> で見ます。</p>" },
+    { h: "パッケージ", body: "<p>ドット付きのモジュール名（<code class='i'>sound.effects.echo</code>）で階層化したもの。ディレクトリに <code class='i'>__init__.py</code> を置きます。<code class='i'>from package import *</code> で読み込むサブモジュールは <code class='i'>__init__.py</code> の <span class='hl'><code class='i'>__all__</code></span> で指定します。</p>",
+      code: String.raw`# sound/effects/__init__.py
+__all__ = ["echo", "surround", "reverse"]
+
+# sound/effects/surround.py の中での相対インポート
+from . import echo
+from .. import formats
+from ..filters import equalizer
+# ※ 相対インポートは __main__ として実行するモジュールでは使えない`},
+  ],
+  quiz: [
+    Q("Pythonファイルをスクリプトとして直接実行したとき、そのファイル内の __name__ の値はどれ？", null, ["\"__main__\"", "ファイル名（拡張子なし）", "None", "\"__init__\""], 0, "直接実行したときは <b>\"__main__\"</b>。import された場合はモジュール名になります。"),
+    Q("from モジュール import * で取り込まれない名前はどれ？（__all__ が未定義の場合）", null, ["アンダースコア（_）で始まる名前", "大文字で始まる名前", "関数の名前", "クラスの名前"], 0, "<b>_ で始まる名前</b>は import * の対象外です。"),
+    Q("sys.path の初期値に含まれるものとして誤っているものはどれ？", null, ["カレントユーザーのホームディレクトリそのもの", "入力スクリプトのあるディレクトリ", "環境変数 PYTHONPATH のディレクトリ", "インストールごとのデフォルト（site-packages など）"], 0, "チュートリアルが挙げるのは<b>スクリプトのディレクトリ・PYTHONPATH・インストールのデフォルト</b>の3つです。"),
+    Q("from package import * を実行したときに読み込むサブモジュールを指定するには、__init__.py に何を定義する？", null, ["__all__", "__main__", "__path__", "__modules__"], 0, "<b>__all__</b> にサブモジュール名のリストを書きます。"),
+    Q("モジュールのコンパイル済みファイル（.pyc）がキャッシュされるディレクトリ名はどれ？", null, ["__pycache__", "__cache__", "build", "site-packages"], 0, "<b>__pycache__</b> ディレクトリに「モジュール名.バージョン.pyc」の形で保存されます。"),
+    Q("引数なしで dir() を呼び出したときに返されるものはどれ？", null, ["現在定義している名前の一覧", "組み込み関数の一覧", "カレントディレクトリのファイル一覧", "sys.path の一覧"], 0, "引数なしなら<b>今定義されている名前</b>（変数・モジュール・関数など）の一覧です。"),
+    Q("相対インポート（from . import echo など）について正しいものはどれ？", null, ["パッケージ内のモジュールで使えるが、__main__ として実行するモジュールでは使えない", "どのファイルでも自由に使える", "Python 3 では廃止された", "標準ライブラリを読み込むときに使う"], 0, "相対インポートは現在のモジュール名を基準にするため、<b>メインモジュールでは使えません</b>。"),
+    Q("1つのセッション内で、変更したモジュールを読み直す方法はどれ？", null, ["importlib.reload(モジュール)", "もう一度 import 文を実行する", "del でモジュールを消す", "sys.path を書き換える"], 0, "モジュールは<b>1セッションで1回しか読み込まれない</b>ため、import をもう一度書いても再読み込みされません。"),
+  ],
+  place: [
+    Q("math モジュールの sqrt 関数を使う書き方として正しいものはどれ？", null, ["import math → math.sqrt(4)", "import math → sqrt(4)", "include math → math.sqrt(4)", "using math → sqrt(4)"], 0, "<code class='i'>import math</code> したら <b>モジュール名.関数名</b> で呼び出します。"),
+    Q("if __name__ == \"__main__\": の目的として正しいものはどれ？", null, ["ファイルを直接実行したときだけ処理を行う", "プログラムの最初に必ず実行する処理を書く", "メイン関数を定義する必須の書き方", "エラーが起きたときの処理を書く"], 0, "<b>直接実行したときだけ</b>動かし、import されたときは動かさないための書き方です。"),
+  ]},
+
+{ id: 9, title: "入出力とファイル", ch: "7章", days: [21], weight: "1〜2問",
+  intro: "f-string の書式指定と、ファイル操作の基本を押さえます。",
+  points: [
+    { h: "f-string と書式指定", body: "<p><code class='i'>f'{式:書式}'</code>。<code class='i'>.3f</code> は小数点以下3桁、<code class='i'>10</code> は幅10（文字列は左寄せ、数値は右寄せ）。<code class='i'>!r</code> で repr()、<code class='i'>=</code> で「式=値」を表示。</p>",
+      code: String.raw`>>> import math
+>>> f'{math.pi:.3f}'
+'3.142'
+>>> f'{"Sjoerd":10}|{4127:10}|'
+'Sjoerd    |      4127|'
+>>> bugs = 'roaches'
+>>> f'{bugs=}'
+"bugs='roaches'"`},
+    { h: "str.format() と文字列メソッド", body: "<p>番号やキーワードで埋め込み位置を指定できます。<code class='i'>zfill()</code> は左をゼロで埋め、符号も考慮します。</p>",
+      code: String.raw`>>> '{0} and {1}'.format('spam', 'eggs')
+'spam and eggs'
+>>> '{1} and {0}'.format('spam', 'eggs')
+'eggs and spam'
+>>> '12'.zfill(5)
+'00012'
+>>> '-3.14'.zfill(7)
+'-003.14'
+>>> 'ab'.rjust(4), 'ab'.ljust(4), 'ab'.center(6)
+('  ab', 'ab  ', '  ab  ')`},
+    { h: "str() と repr()", body: "<p><code class='i'>str()</code> は人が読みやすい形、<code class='i'>repr()</code> はインタープリタが読める形（文字列ならクォートやエスケープ付き）。</p>",
+      code: String.raw`>>> s = 'hello\n'
+>>> print(str(s))
+hello
+
+>>> print(repr(s))
+'hello\n'`},
+    { h: "ファイルの読み書き", body: "<p><code class='i'>open(ファイル名, モード, encoding=...)</code>。モードは <code class='i'>'r'</code> 読み込み（省略時）、<code class='i'>'w'</code> 書き込み、<code class='i'>'a'</code> 追記、<code class='i'>'r+'</code> 読み書き、<code class='i'>'b'</code> バイナリ。<span class='hl'>with 文</span>を使うと、例外が起きても必ずクローズされます。</p>",
+      code: String.raw`with open('workfile', encoding='utf-8') as f:
+    data = f.read()      # 全体を読む
+# ここで f は自動的に閉じられている
+
+f.readline()   # 1行読む。ファイル末尾では '' を返す
+               # 空行は '\n' を返す
+for line in f: # 1行ずつ処理（メモリ効率が良い）
+    print(line, end='')`},
+    { h: "json で構造化データを保存", body: "<ul><li><code class='i'>json.dumps(obj)</code> → JSON文字列に変換</li><li><code class='i'>json.dump(obj, f)</code> → ファイルに書く</li><li><code class='i'>json.load(f)</code> → ファイルから読む</li></ul>" },
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`import math
+print(f'{math.pi:.3f}')`, ["3.142", "3.141", "3.14", "3.1416"], 0, "<code class='i'>.3f</code> は小数点以下3桁に<b>四捨五入</b>（3.14159… → 3.142）。"),
+    Q("次のコードの出力はどれ？", String.raw`print('{1} and {0}'.format('spam', 'eggs'))`, ["eggs and spam", "spam and eggs", "1 and 0", "IndexError が発生する"], 0, "{1} は2番目の引数 'eggs'、{0} は1番目の 'spam'。"),
+    Q("次のコードの出力はどれ？", String.raw`print('12'.zfill(5))`, ["00012", "12000", "   12", "12"], 0, "zfill は<b>左側をゼロで埋めて</b>指定した幅にします。"),
+    Q("次のコードの出力はどれ？", String.raw`s = 'hello\n'
+print(repr(s))`, ["'hello\\n'（クォートとエスケープ付き）", "hello（と改行）", "hello\\n（クォートなし）", "\"hello\""], 0, "repr() は<b>インタープリタが読める表現</b>なので、クォートで囲み改行を \\n で表します。"),
+    Q("ファイルオブジェクトの readline() が、ファイルの末尾に達したときに返す値はどれ？", null, ["空文字列 ''", "'\\n'", "None", "EOFError を送出する"], 0, "末尾では<b>空文字列</b>。空行の場合は '\\n' が返るので区別できます。"),
+    Q("ファイル操作に with 文を使う利点として正しいものはどれ？", null, ["途中で例外が発生してもファイルが確実にクローズされる", "ファイルの読み込みが速くなる", "ファイルが自動でバックアップされる", "エンコーディングが自動判定される"], 0, "with ブロックを抜けると<b>必ず close される</b>のが利点です。"),
+    Q("Pythonのオブジェクトを JSON 形式の文字列に変換する関数はどれ？", null, ["json.dumps()", "json.loads()", "json.load()", "json.parse()"], 0, "dump<b>s</b> の s は string。ファイルに書くのは json.dump()、読むのは json.load()。"),
+    Q("次のコードの出力はどれ？", String.raw`bugs = 'roaches'
+print(f'{bugs=}')`, ["bugs='roaches'", "roaches", "bugs=roaches", "SyntaxError になる"], 0, "<code class='i'>=</code> 指定子は<b>式のテキスト・=・repr()した値</b>を表示します。"),
+  ],
+  place: [
+    Q("次のコードの出力はどれ？", String.raw`name = 'Ann'
+print(f'Hi, {name}!')`, ["Hi, Ann!", "Hi, {name}!", "Hi, name!", "エラーになる"], 0, "f-string では <code class='i'>{}</code> の中の式の値が埋め込まれます。"),
+    Q("ファイルを「書き込み」用に開くとき、open() に指定するモードはどれ？", null, ["'w'", "'r'", "'x+'", "'o'"], 0, "<b>'w'</b> は write。'r' は読み込み、'a' は追記です。"),
+  ]},
+
+{ id: 10, title: "エラーと例外", ch: "8章", days: [22, 23], weight: "4〜5問",
+  intro: "try / except / else / finally の実行順序は必ず出ます。コードを目で追えるようにしましょう。",
+  points: [
+    { h: "構文エラーと例外", body: "<p><span class='hl'>構文エラー（SyntaxError）</span>は実行前の解析で見つかるエラー。文法は正しくても実行中に起きるのが<span class='hl'>例外</span>です。</p>",
+      code: String.raw`>>> while True print('Hello')
+SyntaxError: invalid syntax
+>>> 10 * (1/0)
+ZeroDivisionError: division by zero
+>>> 4 + spam*3
+NameError: name 'spam' is not defined
+>>> '2' + 2
+TypeError: can only concatenate str (not "int") to str
+>>> int('abc')
+ValueError: invalid literal for int() with base 10: 'abc'`},
+    { h: "try / except / else / finally", body: "<ul><li><code class='i'>except</code> は<span class='hl'>上から順に</span>見て、最初に一致した1つだけ実行</li><li>基底クラスの except は派生クラスの例外も捕まえる</li><li><code class='i'>else</code> は<span class='hl'>例外が起きなかったとき</span>だけ実行</li><li><code class='i'>finally</code> は<span class='hl'>必ず</span>実行（return や break があっても）</li></ul>",
+      code: String.raw`def divide(x, y):
+    try:
+        result = x / y
+    except ZeroDivisionError:
+        print("division by zero!")
+    else:
+        print("result is", result)
+    finally:
+        print("executing finally clause")
+
+divide(2, 1)   # result is 2.0 → executing finally clause
+divide(2, 0)   # division by zero! → executing finally clause`},
+    { h: "finally と return", body: "<p>finally 節に return があると、<span class='hl'>try 節の return より優先</span>されます。</p>",
+      code: String.raw`def bool_return():
+    try:
+        return True
+    finally:
+        return False
+
+bool_return()   # False`},
+    { h: "例外を送出する：raise と連鎖", body: "<p><code class='i'>raise 例外クラスまたはインスタンス</code>。except 節の中で引数なしの <code class='i'>raise</code> を書くと、捕まえた例外を再送出します。<code class='i'>raise 新しい例外 from 元の例外</code> で連鎖を明示、<code class='i'>from None</code> で連鎖を表示しない。</p>",
+      code: String.raw`try:
+    raise NameError('HiThere')
+except NameError:
+    print('An exception flew by!')
+    raise          # 再送出
+
+try:
+    open('database.sqlite')
+except OSError as exc:
+    raise RuntimeError('Failed to open database') from exc`},
+    { h: "ユーザー定義例外ほか", body: "<p>独自の例外は <span class='hl'><code class='i'>Exception</code> クラスを継承</span>して作ります。名前は「Error」で終えるのが慣習。Python 3.11 以降は複数の例外をまとめる <code class='i'>ExceptionGroup</code> と <code class='i'>except*</code>、例外にメモを付ける <code class='i'>add_note()</code> もあります。</p>",
+      trap: "<b>ひっかけ注意：</b>except B → except C → except D の順に書くと、C や D の例外もすべて最初の except B で捕まります。" },
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`def divide(x, y):
+    try:
+        result = x / y
+    except ZeroDivisionError:
+        print("A", end="")
+    else:
+        print("B", end="")
+    finally:
+        print("C", end="")
+
+divide(2, 1)`, ["BC", "AC", "ABC", "B"], 0, "例外が起きないので <b>else（B）→ finally（C）</b>。"),
+    Q("次のコードの出力はどれ？", String.raw`def bool_return():
+    try:
+        return True
+    finally:
+        return False
+
+print(bool_return())`, ["False", "True", "None", "SyntaxError になる"], 0, "<b>finally の return が優先</b>されます。"),
+    Q("次のコードの出力はどれ？", String.raw`class B(Exception): pass
+class C(B): pass
+class D(C): pass
+
+for cls in [B, C, D]:
+    try:
+        raise cls()
+    except B:
+        print("B", end="")
+    except C:
+        print("C", end="")
+    except D:
+        print("D", end="")`, ["BBB", "BCD", "DCB", "B"], 0, "C も D も B の派生クラスなので、<b>最初の except B</b> にすべて一致します。"),
+    Q("int('abc') を実行したときに送出される例外はどれ？", null, ["ValueError", "TypeError", "NameError", "SyntaxError"], 0, "型（str）は受け付けるが<b>値が不適切</b>なので ValueError。"),
+    Q("ある例外を処理中に、別の例外を「直接の原因」を明示して送出する書き方はどれ？", null, ["raise RuntimeError('msg') from exc", "raise RuntimeError('msg') with exc", "raise RuntimeError('msg'), exc", "raise exc as RuntimeError('msg')"], 0, "<b>raise ... from 元の例外</b> で例外の連鎖を明示します。"),
+    Q("try 文で、try 節で例外が発生しなかったときだけ実行される節はどれ？", null, ["else 節", "finally 節", "except 節", "pass 節"], 0, "<b>else</b> は例外なしのときだけ。finally は例外の有無にかかわらず常に実行されます。"),
+    Q("ユーザー定義の例外クラスを作るとき、通常継承するクラスはどれ？", null, ["Exception", "Error", "object", "SyntaxError"], 0, "ユーザー定義例外は <b>Exception</b>（またはその派生クラス）を継承します。"),
+    Q("次のコードを実行したときに表示されるエラーはどれ？", String.raw`while True print('Hello world')`, ["SyntaxError", "NameError", "TypeError", "ZeroDivisionError"], 0, "コロン（:）がないので<b>構文エラー</b>。実行前の解析段階で検出されます。"),
+  ],
+  place: [
+    Q("次のコードを実行すると発生するエラーはどれ？", String.raw`print(1 / 0)`, ["ZeroDivisionError", "ValueError", "SyntaxError", "何も起きず 0 と表示される"], 0, "0 で割ると <b>ZeroDivisionError</b>。"),
+    Q("実行中に発生したエラー（例外）を捕まえて処理するための構文はどれ？", null, ["try ～ except", "if ～ else", "for ～ else", "with ～ as"], 0, "<b>try</b> に処理を書き、<b>except</b> でエラー時の処理を書きます。"),
+  ]},
+
+{ id: 11, title: "クラス・スコープ・イテレータ", ch: "9章", days: [24, 25], weight: "2〜3問",
+  intro: "クラス変数とインスタンス変数の違い、nonlocal / global、ジェネレータが頻出です。",
+  points: [
+    { h: "スコープと名前空間：global と nonlocal", body: "<p>関数内で代入した名前はローカル。外側の関数の変数に代入するなら <code class='i'>nonlocal</code>、モジュールのグローバル変数に代入するなら <code class='i'>global</code>。</p>",
+      code: String.raw`def scope_test():
+    def do_local():
+        spam = "local spam"
+    def do_nonlocal():
+        nonlocal spam
+        spam = "nonlocal spam"
+    def do_global():
+        global spam
+        spam = "global spam"
+    spam = "test spam"
+    do_local();    print(spam)   # test spam
+    do_nonlocal(); print(spam)   # nonlocal spam
+    do_global();   print(spam)   # nonlocal spam（ローカルは変わらない）
+
+scope_test()
+print(spam)                      # global spam`},
+    { h: "クラスの基本", body: "<p><code class='i'>__init__()</code> はインスタンス生成時に自動で呼ばれます。メソッドの第1引数 <code class='i'>self</code> は<span class='hl'>慣習的な名前</span>で、特別な意味はありません。</p>",
+      code: String.raw`class Complex:
+    def __init__(self, realpart, imagpart):
+        self.r = realpart
+        self.i = imagpart
+
+x = Complex(3.0, -4.5)
+x.r, x.i     # (3.0, -4.5)`},
+    { h: "クラス変数とインスタンス変数", body: "<p>クラス直下で定義した変数は<span class='hl'>全インスタンスで共有</span>。リストなど変更可能なものをクラス変数にすると、意図せず共有されます。</p>",
+      code: String.raw`class Dog:
+    tricks = []                 # 間違い：全員で共有される
+    def __init__(self, name):
+        self.name = name        # インスタンスごと
+    def add_trick(self, trick):
+        self.tricks.append(trick)
+
+d = Dog('Fido'); e = Dog('Buddy')
+d.add_trick('roll over'); e.add_trick('play dead')
+d.tricks   # ['roll over', 'play dead']
+# 正しくは __init__ 内で self.tricks = [] とする`},
+    { h: "継承・多重継承・プライベート変数", body: "<ul><li><code class='i'>class Derived(Base):</code>。メソッドはオーバーライドでき、<code class='i'>Base.method(self, ...)</code> で基底側を呼べる</li><li><code class='i'>isinstance(obj, int)</code>、<code class='i'>issubclass(bool, int)</code>（True）</li><li>多重継承の探索は基本的に<span class='hl'>深さ優先・左から右</span></li><li><code class='i'>__spam</code>（先頭に _ 2つ）は <code class='i'>_クラス名__spam</code> に<span class='hl'>名前修飾（マングリング）</span>される</li></ul>" },
+    { h: "イテレータとジェネレータ", body: "<p>for 文は内部で <code class='i'>iter()</code> を呼び、<code class='i'>next()</code> で要素を取り出し、<code class='i'>StopIteration</code> で終わります。<code class='i'>yield</code> を使う関数（ジェネレータ）で簡単にイテレータを作れます。</p>",
+      code: String.raw`>>> it = iter('ab')
+>>> next(it), next(it)
+('a', 'b')
+>>> next(it)
+StopIteration
+
+def reverse(data):
+    for index in range(len(data)-1, -1, -1):
+        yield data[index]
+
+>>> ''.join(reverse('golf'))
+'flog'
+>>> sum(i*i for i in range(10))   # ジェネレータ式
+285`},
+  ],
+  quiz: [
+    Q("次のコードの出力はどれ？", String.raw`def outer():
+    x = 'local'
+    def inner():
+        nonlocal x
+        x = 'nonlocal'
+    inner()
+    return x
+
+print(outer())`, ["nonlocal", "local", "None", "NameError が発生する"], 0, "<b>nonlocal</b> により inner の代入が outer の x を書き換えます。"),
+    Q("次のコードの出力はどれ？", String.raw`class Dog:
+    tricks = []
+    def __init__(self, name):
+        self.name = name
+    def add_trick(self, trick):
+        self.tricks.append(trick)
+
+d = Dog('Fido')
+e = Dog('Buddy')
+d.add_trick('roll over')
+e.add_trick('play dead')
+print(d.tricks)`, ["['roll over', 'play dead']", "['roll over']", "['play dead']", "[]"], 0, "tricks は<b>クラス変数で全インスタンス共有</b>なので、両方の芸が入ります。"),
+    Q("次のコードの出力はどれ？", String.raw`print(issubclass(bool, int), isinstance(True, int))`, ["True True", "False False", "True False", "False True"], 0, "<b>bool は int のサブクラス</b>です。"),
+    Q("次のクラスで、クラスの外から変数 __x にアクセスできる書き方はどれ？", String.raw`class A:
+    __x = 1`, ["A._A__x", "A.__x", "A._x", "A.x"], 0, "先頭に _ が2つの名前は<b>_クラス名__x</b> に名前修飾されます。"),
+    Q("次のコードの出力はどれ？", String.raw`def reverse(data):
+    for i in range(len(data) - 1, -1, -1):
+        yield data[i]
+
+print(''.join(reverse('golf')))`, ["flog", "golf", "f", "['f', 'l', 'o', 'g']"], 0, "<b>yield</b> で後ろから1文字ずつ返すジェネレータです。"),
+    Q("次のコードの3回目の next() で何が起きる？", String.raw`it = iter('ab')
+next(it)
+next(it)
+next(it)`, ["StopIteration 例外が発生する", "None が返る", "'a' が返る（最初に戻る）", "IndexError が発生する"], 0, "要素が尽きると <b>StopIteration</b> が送出されます。for 文はこれを合図にループを終えます。"),
+    Q("次のコードの出力はどれ？", String.raw`print(sum(i * i for i in range(4)))`, ["14", "30", "6", "SyntaxError になる"], 0, "ジェネレータ式。0 + 1 + 4 + 9 = <b>14</b>。関数呼び出しの唯一の引数なら外側のかっこは省略できます。"),
+    Q("メソッドの第1引数を self と書くことについて正しいものはどれ？", null, ["慣習であり、self という名前自体に特別な意味はない", "self は予約語なので他の名前は使えない", "self を書かないとクラス変数になる", "self は Python 3.10 から必須になった"], 0, "<b>単なる慣習</b>です。ただし守らないと読みにくくなるので必ず self と書きましょう。"),
+  ],
+  place: [
+    Q("クラスからインスタンスを作るときに自動的に呼ばれるメソッドはどれ？", null, ["__init__", "__main__", "__new_instance__", "__start__"], 0, "<b>__init__</b> は初期化用のメソッドで、インスタンス生成時に自動で呼ばれます。"),
+    Q("次のコードの出力はどれ？", String.raw`x = 10
+def f():
+    global x
+    x = 20
+
+f()
+print(x)`, ["20", "10", "None", "NameError が発生する"], 0, "<b>global</b> 宣言により、関数内の代入がグローバル変数 x を書き換えます。"),
+  ]},
+
+{ id: 12, title: "標準ライブラリと仮想環境", ch: "10・11・12章", days: [26, 27], weight: "6問前後",
+  intro: "「この用途にはどのモジュール？」という対応付けが中心です。表を何度も見て覚えましょう。",
+  points: [
+    { h: "10章：よく使う標準ライブラリ", body: "<p>「用途 → モジュール名」で覚えます。</p>",
+      code: String.raw`os          OS操作        os.getcwd() / os.chdir() / os.system()
+shutil      ファイル操作   shutil.copyfile() / shutil.move()
+glob        ワイルドカード glob.glob('*.py')
+sys         引数・終了     sys.argv / sys.stderr / sys.exit()
+argparse    引数の解析
+re          正規表現       re.findall(r'\bf[a-z]*', s)
+math        数学           math.cos(math.pi / 4) / math.log(1024, 2) → 10.0
+random      乱数           choice() / sample() / random() / randrange()
+statistics  統計           mean() / median() / variance()
+urllib.request  URLからデータ取得     smtplib  メール送信
+datetime    日付と時刻     date.today() / 日付の引き算 → timedelta
+zlib, gzip, bz2, lzma, zipfile, tarfile   データ圧縮
+timeit      処理時間の計測  profile, pstats  詳細な性能測定
+doctest     docstring内の例をテスト   unittest  本格的なテスト
+json, csv, sqlite3, xml.etree.ElementTree   データ形式`},
+    { h: "11章：もう一歩進んだ標準ライブラリ", body: "",
+      code: String.raw`reprlib     長いデータを省略して表示
+pprint      見やすく整形して表示
+textwrap    指定幅で折り返す        textwrap.fill(s, width=40)
+locale      地域ごとの数値書式
+string.Template  $name で置換。substitute() は不足でKeyError、
+                 safe_substitute() は不足をそのまま残す
+struct      バイナリデータの pack / unpack
+threading   マルチスレッド
+logging     ログ出力。デフォルトは WARNING 以上を stderr へ
+weakref     弱参照
+array       同じ型のデータを省メモリで格納
+collections.deque  両端の追加・削除が速い
+bisect      ソート済みリストへの挿入   heapq  最小値を素早く取り出す
+decimal     10進数の正確な計算（お金の計算など）`},
+    { h: "ひっかけポイント：logging と decimal", body: "",
+      code: String.raw`import logging
+logging.debug('a')      # 表示されない
+logging.info('b')       # 表示されない
+logging.warning('c')    # WARNING:root:c
+logging.error('d')      # ERROR:root:d
+
+>>> 0.1 + 0.1 + 0.1 == 0.3
+False
+>>> from decimal import Decimal
+>>> Decimal('0.70') * Decimal('1.05')
+Decimal('0.7350')
+>>> sum([Decimal('0.1')] * 10) == Decimal('1.0')
+True`},
+    { h: "12章：仮想環境とパッケージ", body: "<p>プロジェクトごとに独立した環境を作るのが <code class='i'>venv</code>、パッケージを管理するのが <code class='i'>pip</code>。</p>",
+      code: String.raw`$ python3 -m venv tutorial-env           # 仮想環境を作る
+$ source tutorial-env/bin/activate       # 有効化（Unix）
+> tutorial-env\Scripts\activate          # 有効化（Windows）
+$ deactivate                             # 無効化
+
+$ python -m pip install novas            # インストール
+$ python -m pip install requests==2.6.0  # バージョン指定
+$ python -m pip install --upgrade requests
+$ python -m pip uninstall requests
+$ python -m pip show requests            # 詳細情報
+$ python -m pip list                     # 一覧
+$ python -m pip freeze > requirements.txt
+$ python -m pip install -r requirements.txt`},
+  ],
+  quiz: [
+    Q("カレントディレクトリ（作業ディレクトリ）のパスを取得する関数はどれ？", null, ["os.getcwd()", "sys.getcwd()", "shutil.pwd()", "glob.cwd()"], 0, "<b>os.getcwd()</b>。変更は os.chdir()。"),
+    Q("ワイルドカード（*.py など）でファイル名の一覧を取得するモジュールはどれ？", null, ["glob", "shutil", "re", "fnmatch_list"], 0, "<b>glob.glob('*.py')</b> でファイルのリストが得られます。"),
+    Q("次のコードを（logging の設定を変えずに）実行したとき、出力されるものはどれ？", String.raw`import logging
+logging.debug('a')
+logging.info('b')
+logging.warning('c')
+logging.error('d')`, ["c と d", "a, b, c, d すべて", "d だけ", "何も出力されない"], 0, "デフォルトは <b>WARNING 以上</b>だけが標準エラー出力に出ます。"),
+    Q("次のコードの出力はどれ？", String.raw`import math
+print(math.log(1024, 2))`, ["10.0", "10", "512.0", "2.0"], 0, "2 を底とする 1024 の対数で 10。math.log は <b>float</b> を返します。"),
+    Q("お金の計算など、10進数で正確な計算をしたいときに使うモジュールはどれ？", null, ["decimal", "math", "fractions_money", "float"], 0, "<b>decimal</b> の Decimal 型を使います。float は 2進数なので誤差が出ます。"),
+    Q("仮想環境 tutorial-env を作成するコマンドはどれ？", null, ["python3 -m venv tutorial-env", "python3 -m pip venv tutorial-env", "pip install venv tutorial-env", "python3 -c venv tutorial-env"], 0, "<b>python3 -m venv ディレクトリ名</b>。"),
+    Q("インストール済みパッケージの一覧を、pip install -r で読める形式で出力するコマンドはどれ？", null, ["pip freeze", "pip list", "pip show", "pip export"], 0, "<b>pip freeze > requirements.txt</b> が定番。pip list は人が読む用の一覧です。"),
+    Q("次のコードの出力はどれ？", String.raw`from string import Template
+t = Template('$who likes $what')
+print(t.safe_substitute(who='tim'))`, ["tim likes $what", "KeyError が発生する", "tim likes", "$who likes $what"], 0, "<b>safe_substitute()</b> は足りない値をそのまま残します。substitute() なら KeyError。"),
+    Q("次のコードの出力はどれ？", String.raw`import heapq
+data = [5, 1, 8, 3]
+heapq.heapify(data)
+print(heapq.heappop(data))`, ["1", "5", "8", "3"], 0, "heapq は<b>最小の要素</b>を素早く取り出せます。"),
+    Q("docstring 内に書いた対話セッションの例を、テストとして実行できるモジュールはどれ？", null, ["doctest", "unittest", "timeit", "pdb"], 0, "<b>doctest</b>。より本格的なテストは unittest。"),
+    Q("次のコードの出力はどれ？", String.raw`from datetime import date
+print((date(2026, 12, 25) - date(2026, 12, 1)).days)`, ["24", "25", "23", "TypeError が発生する"], 0, "日付の引き算は <b>timedelta</b> を返し、.days で日数が取れます。"),
+  ],
+  place: [
+    Q("乱数（ランダムな値）を扱う標準ライブラリのモジュールはどれ？", null, ["random", "math", "statistics", "rand"], 0, "<b>random</b> モジュール。random.choice() や random.randrange() など。"),
+    Q("外部パッケージをインストールするときに使うコマンドはどれ？", null, ["pip install パッケージ名", "python install パッケージ名", "import install パッケージ名", "venv add パッケージ名"], 0, "<b>pip install</b>（python -m pip install）でインストールします。"),
+  ]},
+];
+
+// 模擬試験の単元別出題数（合計40問）— 公式の章別出題比率を目安に配分
+const MOCK_MIX = { 1: 2, 2: 2, 3: 2, 4: 2, 5: 4, 6: 5, 7: 7, 8: 2, 9: 2, 10: 4, 11: 3, 12: 5 };
+const MOCK_MIN = 60, PASS_RATE = 0.7, UNIT_PASS = 0.8;
+const UNIT = Object.fromEntries(UNITS.map(u => [u.id, u]));
+
+// 30日スケジュール
+const SCHEDULE = [];
+UNITS.forEach(u => u.days.forEach((d, i) => SCHEDULE[d] = { u: u.id, nth: i + 1, of: u.days.length }));
+SCHEDULE[28] = { mock: 1, label: "模擬試験①（60分・40問）" };
+SCHEDULE[29] = { review: true, label: "弱点単元の復習（模擬試験で正答率の低い単元）" };
+SCHEDULE[30] = { mock: 2, label: "模擬試験②と最終確認" };
+
+const LEVELS = [
+  { min: 0,  name: "レベル1 入門", time: "1日90分", text: "プログラミングの基本から順番に進めましょう。毎日の単元を飛ばさず、レッスンのコードは実際に入力して動かすのが近道です。" },
+  { min: 35, name: "レベル2 基礎あり", time: "1日60〜90分", text: "基本は押さえています。4章（制御構文・関数）と5章（データ構造）は出題数が多いので、時間をかけて取り組みましょう。" },
+  { min: 65, name: "レベル3 実力あり", time: "1日60分", text: "診断で全問正解した単元は、レッスンを流し読みしてすぐ小テストに進んで構いません。浮いた時間は弱点単元に回しましょう。" },
+  { min: 90, name: "レベル4 仕上げ段階", time: "1日45〜60分", text: "合格圏が見えています。各単元の小テストで取りこぼしを確認し、早めに模擬試験に挑戦しましょう。" },
+];
+
+/* ============================================================
+   状態と保存（このブラウザ＋ログイン中はクラウドにも同期）
+   ============================================================ */
+const LS_KEY = "py-kiso-30d-v1";
+const blank = () => ({ placement: null, units: {}, mocks: [], start: null, updatedAt: 0 });
+let state = blank();
+try { const raw = localStorage.getItem(LS_KEY); if (raw) state = Object.assign(blank(), JSON.parse(raw)); } catch (e) {}
+
+let db = null, uid = null, pushTimer = null, pushing = false, pushAgain = false;
+const syncEl = () => document.getElementById("sync");
+function save() {
+  state.updatedAt = Date.now();
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+  if (db && uid) { clearTimeout(pushTimer); pushTimer = setTimeout(push, 600); }
+}
+async function push() {
+  if (!db || !uid) return;
+  if (pushing) { pushAgain = true; return; }
+  pushing = true;
+  try {
+    await db.doc("progress/" + uid).set(JSON.parse(JSON.stringify(state)));
+    syncEl().textContent = "進捗はアカウントに同期済み";
+  } catch (e) {
+    syncEl().textContent = "同期できませんでした（このブラウザには保存済み）";
+  }
+  pushing = false;
+  if (pushAgain) { pushAgain = false; push(); }
+}
+(async () => {
+  try {
+    if (!window.claude || !window.claude.use) return;
+    const [d, u] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!d || !u) return;
+    const id = await u.id();
+    if (!id) return;
+    db = d; uid = id;
+    const snap = await Promise.race([db.doc("progress/" + uid).get(), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 10000))]);
+    if (snap.exists) {
+      const remote = JSON.parse(JSON.stringify(snap.data()));
+      if ((remote.updatedAt || 0) > (state.updatedAt || 0)) {
+        state = Object.assign(blank(), remote);
+        try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+        route();
+      } else if (state.updatedAt) push();
+    } else if (state.updatedAt) push();
+    syncEl().textContent = "進捗はアカウントに同期されます";
+  } catch (e) { /* ブラウザ保存のみで動作 */ }
+})();
+
+/* ============================================================
+   ユーティリティ
+   ============================================================ */
+const $app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pct = (s, t) => t ? Math.round(s / t * 100) : 0;
+const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+const fmtDate = iso => { if (!iso) return "—"; const [y, m, d] = iso.slice(0, 10).split("-"); return `${+m}/${+d}`; };
+function dayNumber() {
+  if (!state.start) return 0;
+  const s = new Date(state.start + "T00:00:00"), t = new Date(todayISO() + "T00:00:00");
+  return Math.floor((t - s) / 86400000) + 1;
+}
+function addDays(iso, n) { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() + n); return `${d.getMonth() + 1}/${d.getDate()}`; }
+function codeHTML(src) {
+  return esc(src).split("\n").map(line => {
+    line = line.replace(/(^|\s)(#.*)$/, '$1<span class="c">$2</span>');
+    return line.replace(/^(&gt;&gt;&gt;|\.\.\.|\$|&gt;)(?= |$)/, '<span class="p">$1</span>');
+  }).join("\n");
+}
+function unitStatus(id) {
+  const r = state.units[id];
+  if (r && r.best >= UNIT_PASS) return { key: "pass", label: "合格" };
+  if (r) return { key: "prog", label: "再挑戦" };
+  const pu = state.placement && state.placement.byUnit[id];
+  if (pu && pu[0] === pu[1]) return { key: "skip", label: "診断クリア" };
+  return { key: "todo", label: "未着手" };
+}
+const passedCount = () => UNITS.filter(u => (state.units[u.id] || {}).best >= UNIT_PASS).length;
+
+/* ============================================================
+   クイズエンジン（単元テスト・診断・模擬試験で共通）
+   ============================================================ */
+let session = null; // { kind, unitId, items:[{q, order:[idx], unit}], answers:[], graded, timer }
+function buildItems(list, withIdk) {
+  return list.map(({ q, unit }) => {
+    const order = shuffle(q.c.map((_, i) => i));
+    return { q, unit, order, idk: !!withIdk };
+  });
+}
+function quizHTML(items, graded, answers) {
+  return `<div class="quiz">${items.map((it, n) => {
+    const a = answers[n];
+    const ok = graded && a === it.q.a;
+    const opts = it.order.map(ci => {
+      let cls = "opt";
+      if (!graded && a === ci) cls += " sel";
+      if (graded && ci === it.q.a) cls += " right";
+      if (graded && a === ci && ci !== it.q.a) cls += " wrong";
+      const text = /[぀-ヿ一-鿿]/.test(it.q.c[ci]) ? esc(it.q.c[ci]) : `<code>${esc(it.q.c[ci])}</code>`;
+      return `<label class="${cls}"><input type="radio" id="q${n}o${ci}" name="q${n}" value="${ci}" ${a === ci ? "checked" : ""} ${graded ? "disabled" : ""}><span>${text}</span></label>`;
+    }).join("") + (it.idk ? `<label class="opt idk${!graded && a === -1 ? " sel" : ""}${graded && a === -1 ? " wrong" : ""}"><input type="radio" id="q${n}idk" name="q${n}" value="-1" ${a === -1 ? "checked" : ""} ${graded ? "disabled" : ""}><span>わからない</span></label>` : "");
+    return `<section class="q${graded ? " graded " + (ok ? "ok" : "ng") : ""}" id="qs${n}">
+      <div class="qh"><span class="qn">Q${n + 1}</span><p class="qt">${esc(it.q.q)}</p>${graded ? `<span class="verdict-tag ${ok ? "ok" : "ng"}">${ok ? "正解" : "不正解"}</span>` : ""}</div>
+      ${it.q.code ? `<pre>${codeHTML(it.q.code)}</pre>` : ""}
+      <div class="opts" role="radiogroup">${opts}</div>
+      ${graded ? `<div class="exp"><b>解説</b>　${it.q.e}${it.unit && session.kind !== "unit" ? `　<a href="#u${it.unit}">→ 単元${it.unit}</a>` : ""}</div>` : ""}
+    </section>`;
+  }).join("")}</div>`;
+}
+function bindQuiz() {
+  $app.querySelectorAll('.quiz input[type=radio]').forEach(inp => inp.addEventListener("change", e => {
+    const n = +e.target.name.slice(1);
+    session.answers[n] = +e.target.value;
+    const sec = document.getElementById("qs" + n);
+    sec.querySelectorAll(".opt").forEach(l => l.classList.toggle("sel", l.querySelector("input").checked));
+    updateCount();
+  }));
+}
+function updateCount() {
+  const el = document.getElementById("answered");
+  if (el) el.textContent = `${session.answers.filter(a => a !== undefined).length} / ${session.items.length} 問回答`;
+}
+function grade() {
+  let score = 0; const byUnit = {};
+  session.items.forEach((it, n) => {
+    const ok = session.answers[n] === it.q.a;
+    if (ok) score++;
+    if (it.unit) { byUnit[it.unit] = byUnit[it.unit] || [0, 0]; byUnit[it.unit][1]++; if (ok) byUnit[it.unit][0]++; }
+  });
+  session.graded = true;
+  return { score, total: session.items.length, byUnit };
+}
+
+/* ============================================================
+   画面：ホーム
+   ============================================================ */
+function viewHome() {
+  const p = state.placement;
+  const day = dayNumber();
+  const passed = passedCount();
+  const lastMock = state.mocks[state.mocks.length - 1];
+  const stepState = [p ? "done" : "now", p ? (passed === 12 ? "done" : "now") : "", lastMock && lastMock.score / lastMock.total >= PASS_RATE ? "done" : (passed >= 10 || day >= 28 ? "now" : "")];
+
+  let html = `
+  <section class="stack">
+    <span class="eyebrow">Python 3 エンジニア認定基礎試験 対策</span>
+    <h1>30日で合格ラインの70%へ</h1>
+    <p class="lead">最初にレベル診断で今の実力を確かめ、12の単元を毎日少しずつ進めます。各単元の最後に小テストがあり、<span class="hl">80%以上で合格</span>。最後の3日間は本番と同じ40問・60分の模擬試験です。</p>
+  </section>
+  <dl class="facts">
+    <div><dt>問題数</dt><dd>40<small> 問</small></dd></div>
+    <div><dt>試験時間</dt><dd>60<small> 分</small></dd></div>
+    <div><dt>合格ライン</dt><dd>70<small> %（28問）</small></dd></div>
+    <div><dt>形式</dt><dd>4択<small> CBT</small></dd></div>
+  </dl>
+  <div class="steps">
+    <div class="step ${stepState[0]}"><span class="n">STEP 1</span><b>レベル診断（24問）</b><span>${p ? `${fmtDate(p.date)} 実施・${pct(p.score, p.total)}%` : "約15分。今の実力を測る"}</span></div>
+    <div class="step ${stepState[1]}"><span class="n">STEP 2</span><b>単元学習＋小テスト</b><span>${passed} / 12 単元 合格</span></div>
+    <div class="step ${stepState[2]}"><span class="n">STEP 3</span><b>模擬試験（40問）</b><span>${lastMock ? `最新 ${lastMock.score}/${lastMock.total}問` : "Day 28・30 に実施"}</span></div>
+  </div>`;
+
+  if (!p) {
+    html += `<section class="panel stack">
+      <h2>まずはレベル診断から</h2>
+      <p style="margin:0">全12単元から2問ずつ、計24問を出題します。わからない問題は「わからない」を選んでください。正直に答えるほど、学習プランが正確になります。</p>
+      <div class="row"><a class="btn primary" href="#placement">レベル診断を始める</a><span class="notice">所要時間の目安：15分</span></div>
+    </section>`;
+  } else {
+    const rate = pct(p.score, p.total);
+    const lv = LEVELS.filter(l => rate >= l.min).pop();
+    const sch = SCHEDULE[Math.min(Math.max(day, 1), 30)];
+    let todayText = "";
+    if (day < 1) todayText = `${fmtDate(state.start)} から開始します。`;
+    else if (day > 30) todayText = "30日間のプランが終了しました。模擬試験で70%以上を安定して取れれば、本番の準備は完了です。";
+    else if (sch.u) todayText = `<a href="#u${sch.u}"><b>単元${sch.u}　${esc(UNIT[sch.u].title)}</b></a>${sch.of > 1 ? `（${sch.nth}日目 / ${sch.of}日）` : ""}`;
+    else todayText = `<a href="#mock"><b>${esc(sch.label)}</b></a>`;
+    const behind = day >= 1 ? UNITS.filter(u => u.days[u.days.length - 1] < Math.min(day, 28) && unitStatus(u.id).key !== "pass") : [];
+    const weak = UNITS.filter(u => { const b = p.byUnit[u.id]; return b && b[0] < b[1]; });
+
+    html += `
+    <section class="panel">
+      <div class="today">
+        <div class="daybig"><small>DAY</small><b>${day < 1 ? "–" : Math.min(day, 30)}</b><span>/ 30</span></div>
+        <div class="stack" style="gap:8px">
+          <p class="meta">今日の課題</p>
+          <p>${todayText}</p>
+          ${behind.length ? `<p class="meta">未合格の単元：${behind.map(u => `<a href="#u${u.id}">単元${u.id}</a>`).join("・")}　（先にこちらを片付けましょう）</p>` : ""}
+          <div class="bar" aria-label="単元合格の進み具合"><i style="width:${passed / 12 * 100}%"></i></div>
+          <p class="meta">単元合格 <b>${passed}</b>/12　·　開始日 <input type="date" id="startDate" value="${state.start || ""}" aria-label="開始日">　·　受験目安 <b>${state.start ? addDays(state.start, 30) : "—"}</b> 以降</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel level">
+      <div class="stack" style="gap:8px">
+        <p class="meta">レベル診断の結果（${fmtDate(p.date)}）</p>
+        <div><span class="lv-badge">${lv.name}</span></div>
+        <div class="lv-score">${p.score}<small> / ${p.total}問（${rate}%）</small></div>
+        <p style="margin:0">${lv.text}</p>
+        <p class="meta">学習時間の目安：<b>${lv.time}</b></p>
+        <div class="row"><a class="btn small ghost" href="#placement">診断をやり直す</a></div>
+      </div>
+      <div class="stack" style="gap:8px">
+        <p class="meta">単元別の正答（${weak.length ? `重点単元：${weak.map(u => u.id).join("・")}` : "全単元正解"}）</p>
+        <div class="minibars">${UNITS.map(u => { const b = p.byUnit[u.id] || [0, 2]; return `<div><em>${u.id}. ${esc(u.title.split("（")[0])}</em><span class="bar"><i class="${b[0] === b[1] ? "ok" : b[0] === 0 ? "ng" : ""}" style="width:${b[0] / b[1] * 100}%"></i></span><code>${b[0]}/${b[1]}</code></div>`; }).join("")}</div>
+      </div>
+    </section>`;
+  }
+
+  html += `<section class="stack">
+    <h2>12の単元</h2>
+    <p class="lead" style="margin:0">単元ごとに要点を読み、小テスト（8問前後）で80%以上を取ったら合格です。何度でも受け直せます。</p>
+    <div class="units">${UNITS.map(u => {
+      const st = unitStatus(u.id), r = state.units[u.id];
+      const isToday = state.start && SCHEDULE[dayNumber()] && SCHEDULE[dayNumber()].u === u.id;
+      return `<a class="ucard${st.key === "pass" ? " is-pass" : ""}${isToday ? " is-today" : ""}" href="#u${u.id}">
+        <div class="head"><span class="no">単元 ${u.id} · Day ${u.days[0]}${u.days.length > 1 ? "–" + u.days[u.days.length - 1] : ""}</span><span class="chip ${st.key}">${st.label}</span></div>
+        <b>${esc(u.title)}</b>
+        <span class="sub">チュートリアル${u.ch} · 出題 ${u.weight}${r ? ` · 最高 ${Math.round(r.best * 100)}%` : ""}</span>
+      </a>`;
+    }).join("")}</div>
+  </section>
+
+  <section class="panel stack">
+    <div class="row" style="justify-content:space-between"><h2>模擬試験</h2><a class="btn primary" href="#mock">模擬試験を受ける</a></div>
+    ${state.mocks.length ? `<div style="overflow-x:auto"><table class="hist"><thead><tr><th>日付</th><th>得点</th><th>正答率</th><th>判定</th><th>時間</th></tr></thead><tbody>${state.mocks.slice().reverse().map(m => `<tr><td>${fmtDate(m.date)}</td><td class="num">${m.score}/${m.total}</td><td class="num">${pct(m.score, m.total)}%</td><td><span class="chip ${m.score / m.total >= PASS_RATE ? "pass" : "fail"}">${m.score / m.total >= PASS_RATE ? "合格圏" : "あと一歩"}</span></td><td class="num">${Math.floor(m.sec / 60)}分${m.sec % 60}秒</td></tr>`).join("")}</tbody></table></div>` : `<p class="notice" style="margin:0">本番と同じ40問・60分。全単元から章ごとの出題比率に合わせてランダムに出題します。Day 28 と Day 30 に受けるのがおすすめです。</p>`}
+  </section>
+
+  <section class="row" id="resetRow"><button class="btn small ghost" id="resetBtn">学習記録をすべて消去する</button></section>`;
+  $app.innerHTML = html;
+
+  const sd = document.getElementById("startDate");
+  if (sd) sd.addEventListener("change", () => { if (sd.value) { state.start = sd.value; save(); viewHome(); } });
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    const row = document.getElementById("resetRow");
+    row.innerHTML = `<div class="confirm">診断結果・単元テスト・模擬試験の記録がすべて消えます。<button class="btn small" id="resetYes">消去する</button><button class="btn small ghost" id="resetNo">やめる</button></div>`;
+    document.getElementById("resetNo").onclick = viewHome;
+    document.getElementById("resetYes").onclick = () => { state = blank(); save(); viewHome(); };
+  });
+}
+
+/* ============================================================
+   画面：レベル診断
+   ============================================================ */
+function viewPlacement() {
+  if (!session || session.kind !== "placement") {
+    session = { kind: "placement", items: buildItems(UNITS.flatMap(u => u.place.map(q => ({ q, unit: u.id }))), true), answers: [], graded: false };
+  }
+  const s = session;
+  let head = `<section class="stack">
+    <div class="crumbs"><a href="#">ホーム</a><span>›</span><span>レベル診断</span></div>
+    <span class="eyebrow">STEP 1</span><h1>レベル診断</h1>
+    <p class="lead">全12単元から2問ずつ、計24問。まだ習っていない内容が出て当然です。わからないときは迷わず「わからない」を選んでください。</p>
+  </section>`;
+  let result = "";
+  if (s.graded) {
+    const r = s.result, rate = pct(r.score, r.total), lv = LEVELS.filter(l => rate >= l.min).pop();
+    result = `<section class="result ${rate >= 65 ? "pass" : ""}">
+      <p class="meta">診断結果</p>
+      <div class="big">${r.score}<small> / ${r.total}問（${rate}%）</small></div>
+      <p><span class="lv-badge">${lv.name}</span>　${lv.text}</p>
+      <div class="row"><a class="btn primary" href="#">学習プランを見る</a><a class="btn" href="#u1">単元1から始める</a></div>
+      <p class="notice">下に各問題の解説があります。間違えた問題の解説は、該当する単元で詳しく学べます。</p>
+    </section>`;
+  }
+  $app.innerHTML = head + result + quizHTML(s.items, s.graded, s.answers) + (s.graded ? "" : `
+    <div class="submitbar"><span class="meta" id="answered"></span><button class="btn primary" id="submit">採点する</button></div>`);
+  if (!s.graded) {
+    bindQuiz(); updateCount();
+    document.getElementById("submit").onclick = () => {
+      const missing = s.items.findIndex((_, n) => s.answers[n] === undefined);
+      if (missing >= 0) { document.getElementById("qs" + missing).scrollIntoView({ behavior: "smooth", block: "center" }); document.getElementById("answered").textContent = `Q${missing + 1} が未回答です（わからなければ「わからない」を選択）`; return; }
+      const r = grade(); s.result = r;
+      state.placement = { score: r.score, total: r.total, byUnit: r.byUnit, date: todayISO() };
+      if (!state.start) state.start = todayISO();
+      save(); viewPlacement(); window.scrollTo(0, 0);
+    };
+  }
+}
+
+/* ============================================================
+   画面：単元（レッスン＋小テスト）
+   ============================================================ */
+function viewUnit(id) {
+  const u = UNIT[id]; if (!u) return viewHome();
+  if (!session || session.kind !== "unit" || session.unitId !== id) {
+    session = { kind: "unit", unitId: id, items: buildItems(u.quiz.map(q => ({ q, unit: id }))), answers: [], graded: false, started: false };
+  }
+  const s = session, rec = state.units[id], st = unitStatus(id);
+  const pu = state.placement && state.placement.byUnit[id];
+  const next = UNIT[id + 1];
+
+  let html = `<section class="lesson-head">
+    <div class="crumbs"><a href="#">ホーム</a><span>›</span><span>単元 ${id}</span></div>
+    <span class="eyebrow">単元 ${id} / 12 · Day ${u.days.join("・")} · チュートリアル${u.ch}</span>
+    <h1>${esc(u.title)}</h1>
+    <p class="lead">${u.intro}</p>
+    <div class="row"><span class="chip ${st.key}">${st.label}</span>
+      <span class="meta">出題目安 <b>${u.weight}</b>${rec ? `　·　最高 <b>${Math.round(rec.best * 100)}%</b>　·　受験 <b>${rec.attempts}</b>回` : ""}${pu ? `　·　診断 <b>${pu[0]}/${pu[1]}</b>` : ""}</span></div>
+    ${st.key === "skip" ? `<p class="notice">レベル診断でこの単元は全問正解でした。要点を流し読みして、小テストから始めても大丈夫です。　<a href="#quiz" id="jumpQuiz">小テストへ移動</a></p>` : ""}
+  </section>
+  <section class="points">${u.points.map(pt => `<article class="point">
+      <h3>${pt.h}</h3>
+      ${pt.body ? `<div>${pt.body}</div>` : ""}
+      ${pt.code ? `<pre>${codeHTML(pt.code)}</pre>` : ""}
+      ${pt.trap ? `<div class="trap">${pt.trap}</div>` : ""}
+    </article>`).join("")}</section>
+  <section class="stack" id="quizTop">
+    <h2>小テスト（${u.quiz.length}問）</h2>
+    <p class="lead" style="margin:0">80%以上（${Math.ceil(u.quiz.length * UNIT_PASS)}問以上）で合格。選択肢の順番は受けるたびに入れ替わります。</p>
+  </section>`;
+
+  if (s.graded) {
+    const r = s.result, ok = r.score / r.total >= UNIT_PASS;
+    html += `<section class="result ${ok ? "pass" : "fail"}">
+      <div class="big">${r.score}<small> / ${r.total}問（${pct(r.score, r.total)}%）</small></div>
+      <p><b>${ok ? "合格です。" : "あと少し。"}</b>${ok ? (next ? "次の単元に進みましょう。" : "全単元が終わったら模擬試験に挑戦しましょう。") : "間違えた問題の解説を読み、上の要点を見直してからもう一度挑戦しましょう。"}</p>
+      <div class="row">${ok && next ? `<a class="btn primary" href="#u${next.id}">単元${next.id}へ進む</a>` : ""}${ok && !next ? `<a class="btn primary" href="#mock">模擬試験へ</a>` : ""}<button class="btn${ok ? "" : " primary"}" id="retry">もう一度解く</button><a class="btn ghost" href="#">ホームへ</a></div>
+    </section>`;
+  }
+  html += quizHTML(s.items, s.graded, s.answers);
+  if (!s.graded) html += `<div class="submitbar"><span class="meta" id="answered"></span><button class="btn primary" id="submit">採点する</button></div>`;
+  $app.innerHTML = html;
+
+  const jq = document.getElementById("jumpQuiz");
+  if (jq) jq.onclick = e => { e.preventDefault(); document.getElementById("quizTop").scrollIntoView({ behavior: "smooth" }); };
+  if (!s.graded) {
+    bindQuiz(); updateCount();
+    document.getElementById("submit").onclick = () => {
+      const missing = s.items.findIndex((_, n) => s.answers[n] === undefined);
+      if (missing >= 0) { document.getElementById("qs" + missing).scrollIntoView({ behavior: "smooth", block: "center" }); document.getElementById("answered").textContent = `Q${missing + 1} が未回答です`; return; }
+      const r = grade(); s.result = r;
+      const rate = r.score / r.total, prev = state.units[id] || { best: 0, attempts: 0 };
+      state.units[id] = { best: Math.max(prev.best, rate), last: rate, attempts: prev.attempts + 1, date: todayISO() };
+      save(); viewUnit(id);
+      document.getElementById("quizTop").scrollIntoView();
+    };
+  } else {
+    document.getElementById("retry").onclick = () => { session = null; viewUnit(id); document.getElementById("quizTop").scrollIntoView(); };
+  }
+}
+
+/* ============================================================
+   画面：模擬試験
+   ============================================================ */
+let tick = null;
+function viewMock() {
+  const s = session && session.kind === "mock" ? session : null;
+  if (!s) {
+    $app.innerHTML = `<section class="stack">
+      <div class="crumbs"><a href="#">ホーム</a><span>›</span><span>模擬試験</span></div>
+      <span class="eyebrow">STEP 3</span><h1>模擬試験</h1>
+      <p class="lead">本番と同じ <b>40問・60分</b>。全単元から、公式の章別出題比率を目安にランダムに出題します。時間切れになると自動で採点されます。</p>
+    </section>
+    <section class="panel stack">
+      <h3>単元別の出題数</h3>
+      <div style="overflow-x:auto"><table class="hist"><thead><tr><th>単元</th><th>内容</th><th>出題数</th></tr></thead><tbody>
+      ${UNITS.map(u => `<tr><td class="num">${u.id}</td><td>${esc(u.title)}</td><td class="num">${MOCK_MIX[u.id]}</td></tr>`).join("")}
+      </tbody></table></div>
+      <p class="notice" style="margin:0">${passedCount() < 12 ? `合格済みの単元は ${passedCount()} / 12 です。未学習の単元があっても受験できますが、Day 28 以降に受けるのがおすすめです。` : "全単元に合格しています。本番のつもりで挑戦しましょう。"}</p>
+      <div class="row"><button class="btn primary" id="startMock">60分の模擬試験を始める</button></div>
+    </section>`;
+    document.getElementById("startMock").onclick = () => {
+      const list = [];
+      UNITS.forEach(u => shuffle(u.quiz.concat(u.place)).slice(0, MOCK_MIX[u.id]).forEach(q => list.push({ q, unit: u.id })));
+      session = { kind: "mock", items: buildItems(list), answers: [], graded: false, startedAt: Date.now() };
+      viewMock(); window.scrollTo(0, 0);
+    };
+    return;
+  }
+  let html = `<section class="stack">
+    <div class="crumbs"><a href="#">ホーム</a><span>›</span><span>模擬試験</span></div>
+    <h1>模擬試験</h1></section>`;
+  if (s.graded) {
+    const r = s.result, ok = r.score / r.total >= PASS_RATE;
+    const weak = Object.entries(r.byUnit).filter(([, b]) => b[0] / b[1] < 0.7).map(([id]) => +id);
+    html += `<section class="result ${ok ? "pass" : "fail"}">
+      <div class="big">${r.score}<small> / ${r.total}問（${pct(r.score, r.total)}%）</small></div>
+      <p><b>${ok ? "合格ライン（70%）を超えました。" : `合格ラインまであと ${Math.ceil(r.total * PASS_RATE) - r.score} 問です。`}</b>　所要時間 ${Math.floor(s.sec / 60)}分${s.sec % 60}秒</p>
+      ${weak.length ? `<p>正答率70%未満の単元：${weak.map(id => `<a href="#u${id}">単元${id} ${esc(UNIT[id].title)}</a>`).join("、")}</p>` : `<p>すべての単元で70%以上取れています。</p>`}
+      <div class="minibars">${UNITS.map(u => { const b = r.byUnit[u.id] || [0, 1]; return `<div><em>${u.id}. ${esc(u.title.split("（")[0])}</em><span class="bar"><i class="${b[0] / b[1] >= 0.7 ? "ok" : "ng"}" style="width:${b[0] / b[1] * 100}%"></i></span><code>${b[0]}/${b[1]}</code></div>`; }).join("")}</div>
+      <div class="row"><button class="btn primary" id="again">新しい問題でもう一度</button><a class="btn ghost" href="#">ホームへ</a></div>
+    </section>`;
+  }
+  html += quizHTML(s.items, s.graded, s.answers);
+  if (!s.graded) html += `<div class="submitbar"><span class="timer" id="timer">60:00</span><span class="meta" id="answered"></span><span class="row" id="submitWrap"><button class="btn primary" id="submit">提出して採点</button></span></div>`;
+  $app.innerHTML = html;
+
+  if (!s.graded) {
+    bindQuiz(); updateCount();
+    const finish = () => {
+      clearInterval(tick); tick = null;
+      s.sec = Math.min(MOCK_MIN * 60, Math.round((Date.now() - s.startedAt) / 1000));
+      const r = grade(); s.result = r;
+      state.mocks.push({ score: r.score, total: r.total, byUnit: r.byUnit, date: todayISO(), sec: s.sec });
+      save(); viewMock(); window.scrollTo(0, 0);
+    };
+    const upd = () => {
+      const left = MOCK_MIN * 60 - Math.floor((Date.now() - s.startedAt) / 1000);
+      const el = document.getElementById("timer"); if (!el) { clearInterval(tick); tick = null; return; }
+      if (left <= 0) return finish();
+      el.textContent = `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
+      el.classList.toggle("low", left <= 300);
+    };
+    clearInterval(tick); tick = setInterval(upd, 1000); upd();
+    document.getElementById("submit").onclick = () => {
+      const blankN = s.items.filter((_, n) => s.answers[n] === undefined).length;
+      if (blankN) {
+        const w = document.getElementById("submitWrap");
+        w.innerHTML = `<span class="meta">未回答が ${blankN} 問あります。</span><button class="btn small primary" id="sure">このまま提出</button><button class="btn small ghost" id="back">戻る</button>`;
+        document.getElementById("sure").onclick = finish;
+        document.getElementById("back").onclick = () => { w.innerHTML = `<button class="btn primary" id="submit2">提出して採点</button>`; document.getElementById("submit2").onclick = finish; };
+      } else finish();
+    };
+  } else {
+    document.getElementById("again").onclick = () => { session = null; viewMock(); };
+  }
+}
+
+/* ============================================================
+   ルーティング
+   ============================================================ */
+function route() {
+  const h = location.hash.replace("#", "");
+  if (tick && h !== "mock") { clearInterval(tick); tick = null; }
+  if (h === "placement") viewPlacement();
+  else if (/^u\d+$/.test(h)) viewUnit(+h.slice(1));
+  else if (h === "mock") viewMock();
+  else viewHome();
+}
+let lastHash = location.hash;
+window.addEventListener("hashchange", () => {
+  const h = location.hash;
+  // 別の画面に移ったら解答中のセッションを破棄（模擬試験・診断は意図せず消えないよう、同じ画面に戻れば継続）
+  if (session && session.graded && h !== lastHash) session = null;
+  lastHash = h; route(); window.scrollTo(0, 0);
+});
+route();
+</script>
